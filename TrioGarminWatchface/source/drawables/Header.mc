@@ -37,7 +37,7 @@ class HeaderDrawable extends WatchUi.Drawable {
         var deltaWidth = dc.getTextWidthInPixels(deltaText, Graphics.FONT_XTINY) as Number;
 
         var glucoseX = width * 0.1;
-        var glucoseY = height * 0.26;
+        var glucoseY = height * 0.25;
 
         dc.setColor(primaryColor, Graphics.COLOR_TRANSPARENT);
         dc.drawText(glucoseX , glucoseY, Graphics.FONT_NUMBER_MILD, glucoseText, Graphics.TEXT_JUSTIFY_LEFT);
