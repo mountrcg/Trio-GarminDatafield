@@ -135,14 +135,15 @@ class TrioWatchfaceView extends WatchUi.WatchFace {
         var view = View.findDrawableById("COBLabel") as Text;
 
         if (status instanceof Dictionary)  {
-            var cob = status["cob"];
-            //var cob = status["isf"];       // to show ISF instead of COB
+            //var cob = status["cob"];
+            var cob = status["isf"];       // to show ISF instead of COB
             var cobString;
             if (cob instanceof Number) {
-              cobString = (cob == null) ? "--" : cob.format("%3d") + "g";
-              //cobString = (cob == null) ? "--" : cob.format("%3d");
+              //cobString = (cob == null) ? "--" : cob.format("%3d") + "g";
+              cobString = (cob == null) ? "--" : cob.format("%2.1");
             } else {
-              cobString = (cob == null) ? "--" : cob + "g";
+              //cobString = (cob == null) ? "--" : cob + "g";
+              cobString = (cob == null) ? "--" : cob;
             }
             view.setText(cobString);
             return;
