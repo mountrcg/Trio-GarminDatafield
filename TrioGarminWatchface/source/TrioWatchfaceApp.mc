@@ -53,13 +53,24 @@ class TrioWatchfaceApp extends Application.AppBase {
             "delta" => "-20",
             "iob" => "2.42",
             "cob" => "70.2",
-            "isf" => "124",
+            "isf" => "66.1",
             "eventualBGRaw" => "166",
             "trendRaw" => "FortyFiveDown"
         } as Dictionary;
 
-        // Store the sample data , uncomment line below for testing in IQ sim
-        // Application.Storage.setValue("status", sampleData);
+        var mmollSampleData = {
+            "glucose" => "10,9",
+            "lastLoopDateInterval" => lastLoopDateInterval,
+            "delta" => "-2,3",
+            "iob" => "2,9",
+            "cob" => "70,2",
+            "isf" => "3,7",
+            "eventualBGRaw" => "9,9",
+            "trendRaw" => "FortyFiveDown"
+        } as Dictionary;
+
+        // Store the sample data
+        //Application.Storage.setValue("status", mmollSampleData);
     }
 
     function onBackgroundData(data) {

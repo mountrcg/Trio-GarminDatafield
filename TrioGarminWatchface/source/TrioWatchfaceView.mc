@@ -119,7 +119,7 @@ class TrioWatchfaceView extends WatchUi.WatchFace {
             if (iob instanceof Number) {
                 iobString = (iob == null) ? "--" : iob.format("%2.1f") + "U";
             } else {
-                iobString = (iob == null) ? "--" : iob.toDouble().format("%2.1f")+ "U";
+                iobString = (iob == null) ? "--" : iob + "U";
             }
 
             view.setText(iobString);
@@ -142,8 +142,7 @@ class TrioWatchfaceView extends WatchUi.WatchFace {
               cobString = (cob == null) ? "--" : cob.format("%3d") + "g";
               //cobString = (cob == null) ? "--" : cob.format("%3d");
             } else {
-              cobString = (cob == null) ? "--" : cob.toDouble().format("%3d") + "g";
-              //cobString = (cob == null) ? "--" : cob.format("%3d");
+              cobString = (cob == null) ? "--" : cob + "g";
             }
             view.setText(cobString);
             return;
