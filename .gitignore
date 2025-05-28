@@ -52,8 +52,7 @@ Mkfile.old
 dkms.conf
 
 # Garmin Monkey 
-*/bin
-/bin
+bin/
 .vscode
 .DS_Store
 developer_key
