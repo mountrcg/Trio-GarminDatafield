@@ -26,29 +26,44 @@ class TrioDataFieldApp extends Application.AppBase {
     // onStart() is called on application start up
     function onStart(state as Dictionary?) as Void {
         //register for temporal events if they are supported
-    if(Toybox.System has :ServiceDelegate) {
-            // canDoBG=true;
-            Background.registerForTemporalEvent(new Time.Duration(5 * 60));
-            if (Background has :registerForPhoneAppMessageEvent) {
-                Background.registerForPhoneAppMessageEvent();
-                System.println("****background is ok****");
-            } else {
-                System.println("****registerForPhoneAppMessageEvent is not available****");
-            }
+        if(Toybox.System has :ServiceDelegate) {
+                // canDoBG=true;
+                Background.registerForTemporalEvent(new Time.Duration(5 * 60));
+                if (Background has :registerForPhoneAppMessageEvent) {
+                    Background.registerForPhoneAppMessageEvent();
+                    System.println("****background is ok****");
+                } else {
+                    System.println("****registerForPhoneAppMessageEvent is not available****");
+                }
 
-        } else {
-            System.println("****background not available on this device****");
-        }
+            } else {
+                System.println("****background not available on this device****");
+            }
+        // This will always give you a timestamp from exactly 4 minutes ago
+        var currentTime = Time.now().value();
+        var fourMinutesAgo = currentTime - 240;  // 240 seconds = 4 minutes
+
+        var sample = {
+            "glucose" => "60",
+            "lastLoopDateInterval" => fourMinutesAgo,  // Always 4 minutes ago
+            "delta" => "-20",
+            "iob" => "2.42",
+            "cob" => "70.2",
+            "eventualBGRaw" => "100",
+            "trendRaw" => "FortyFiveDown",
+            "aiSR" => "2.66"
+        } as Dictionary;
+    //uncomment for testing
+    //Application.Storage.setValue("status", sample);
     }
 
     function onBackgroundData(data) {
         if (data instanceof Number || data == null) {
-                 System.println("Not a dictionary");
+            System.println("Not a dictionary");
         } else {
                    System.println("try to update the status");
                    if (Background has :registerForPhoneAppMessageEvent) {
                         System.println("updated with registerForPhoneAppMessageEvent");
-                        // Application.Storage.setValue("status", data as Dictionary);
                     } else {
                         System.println("update status");
                         Application.Storage.setValue("status", data as Dictionary);

@@ -42,21 +42,28 @@ class TrioDataFieldView extends WatchUi.DataField {
         // Use the generic, centered layout
         } else {
             View.setLayout(Rez.Layouts.MainLayout(dc));
+            // Basic positioning for all elements
             var labelView = View.findDrawableById("label");
             labelView.locX = labelView.locX - 40;
             labelView.locY = labelView.locY - 10;
             var valueView = View.findDrawableById("value");
-             valueView.locX = valueView.locX + 5;
+            valueView.locX = valueView.locX + 5;
             valueView.locY = valueView.locY - 10;
-            var valueViewTime = View.findDrawableById("valueTime");
-            valueViewTime.locX = valueViewTime.locX  + 10 ;
-            valueViewTime.locY = valueViewTime.locY + 20;
-            var valueViewDelta = View.findDrawableById("valueDelta");
-            valueViewDelta.locX = valueViewDelta.locX - 40;
-            valueViewDelta.locY = valueViewDelta.locY + 20;
             var valueViewArrow = View.findDrawableById("arrow");
-            valueViewArrow.locX = valueView.locX + 30 ;
-            valueViewArrow.locY = valueViewArrow.locY - 10 ;
+            valueViewArrow.locX = valueView.locX + 30;
+            valueViewArrow.locY = valueViewArrow.locY - 10;
+            var valueViewDelta = View.findDrawableById("valueDelta");
+            valueViewDelta.locX = valueViewDelta.locX - 65;
+            valueViewDelta.locY = valueViewDelta.locY + 20;
+            var valueViewTime = View.findDrawableById("valueTime");
+            valueViewTime.locX = valueViewTime.locX - 15;
+            valueViewTime.locY = valueViewTime.locY + 20;
+            var valueViewAiSRIcon = View.findDrawableById("aiSRIcon");
+            valueViewAiSRIcon.locX = valueViewAiSRIcon.locX + 20;
+            valueViewAiSRIcon.locY = valueViewAiSRIcon.locY + 22;
+            var valueViewAiSR = View.findDrawableById("valueAiSR");
+            valueViewAiSR.locX = valueViewAiSR.locX + 57;
+            valueViewAiSR.locY = valueViewAiSR.locY + 20;
         }
 
         (View.findDrawableById("label") as Text).setText(Rez.Strings.label);
@@ -76,7 +83,8 @@ class TrioDataFieldView extends WatchUi.DataField {
         var loopColor;
         var loopString;
         var deltaString;
-
+        var aiSRString;
+        var iobString;
         var status = Application.Storage.getValue("status") as Dictionary;
 
         if (status == null) {
@@ -84,49 +92,59 @@ class TrioDataFieldView extends WatchUi.DataField {
             loopColor = getLoopColor(-1);
             loopString = "(xx)";
             deltaString = "??";
+            aiSRString = "??";
+            iobString = "??";
         } else {
             var bg = status["glucose"] as String;
             bgString = (bg == null) ? "--" : bg as String;
             var min = getMinutes(status);
             loopColor = getLoopColor(min);
-            loopString = (min < 0 ? "(--)" : "(" + min.format("%d")) + " mn)" as String;
+            loopString = (min < 0 ? "(--)" : "(" + min.format("%d")) + "m)" as String;
             deltaString = getDeltaText(status) as String;
+            aiSRString = getAiSRText(status) as String;
+            iobString = getIOBText(status) as String;
         }
+
         // Set the background color
         //View.findDrawableById("Background").setColor(loopColor);
-        (View.findDrawableById("Background") as Text).setColor(loopColor);    //getBackgroundColor());
-
+        (View.findDrawableById("Background") as Text).setColor(loopColor);
+        
         // Set the foreground color and value
         var value = View.findDrawableById("value") as Text;
         var valueTime = View.findDrawableById("valueTime") as Text;
         var valueDelta = View.findDrawableById("valueDelta") as Text;
-
+        var valueAiSR = View.findDrawableById("valueAiSR") as Text;
         if (getBackgroundColor() == Graphics.COLOR_BLACK) {
             value.setColor(Graphics.COLOR_WHITE);
             valueTime.setColor(Graphics.COLOR_WHITE);
             valueDelta.setColor(Graphics.COLOR_WHITE);
-
+            valueAiSR.setColor(Graphics.COLOR_WHITE);
         } else {
             value.setColor(Graphics.COLOR_BLACK);
             valueTime.setColor(Graphics.COLOR_BLACK);
             valueDelta.setColor(Graphics.COLOR_BLACK);
-
+            valueAiSR.setColor(Graphics.COLOR_BLACK);
         }
-
-
         value.setText(bgString);
         valueDelta.setText(deltaString);
         valueTime.setText(loopString);
+        valueAiSR.setText(aiSRString);
 
         var arrowView = View.findDrawableById("arrow") as Bitmap;
+        var aiSRIconView = View.findDrawableById("aiSRIcon") as Bitmap;
+        
         if (getBackgroundColor() == Graphics.COLOR_BLACK) {
              arrowView.setBitmap(getDirection(status));
+             if (aiSRIconView != null) {
+                 aiSRIconView.setBitmap(WatchUi.loadResource(Rez.Drawables.aiSRDark)); // Light green for dark background
+             }
         }
         else {
             arrowView.setBitmap(getDirectionBlack(status));
+            if (aiSRIconView != null) {
+                aiSRIconView.setBitmap(WatchUi.loadResource(Rez.Drawables.aiSRLight)); // Dark green for light background
+            }
         }
-
-
         // Call parent's onUpdate(dc) to redraw the layout
         View.onUpdate(dc);
     }
@@ -138,20 +156,15 @@ class TrioDataFieldView extends WatchUi.DataField {
             if (lastLoopDate == null) {
                 return -1;
             }
-
             var now = Time.now().value() as Number;
-
             // Calculate seconds difference
             var deltaSeconds = now - lastLoopDate;
-
             // Round up to the nearest minute if delta is positive
             var min = (deltaSeconds > 0) ? ((deltaSeconds + 59) / 60) : 0;
-
             return min;
         } else {
             return -1;
         }
-
     }
 
     function getLoopColor(min as Number) as Number {
@@ -172,10 +185,28 @@ class TrioDataFieldView extends WatchUi.DataField {
             return "--";
         }
         var delta = status["delta"] as String;
-
         var deltaString = (delta == null) ? "--" : delta;
-
         return deltaString;
+    }
+
+    function getAiSRText(status as Dictionary) as String {
+        // var status = Application.Storage.getValue("status") as Dictionary;
+        if (status == null) {
+            return "--";
+        }
+        var aiSR = status["aiSR"] as String;
+        var aiSRString = (aiSR == null) ? "--" : aiSR;
+        return aiSRString;
+    }
+
+    function getIOBText(status as Dictionary) as String {
+        // var status = Application.Storage.getValue("status") as Dictionary;
+        if (status == null) {
+            return "--";
+        }
+        var iob = status["iob"] as String;
+        var iobString = (iob == null) ? "--" : iob;
+        return iobString;
     }
 
     function getDirectionBlack(status) as BitmapType {
@@ -185,7 +216,6 @@ class TrioDataFieldView extends WatchUi.DataField {
             if (trend == null) {
                 return bitmap;
             }
-
             switch (trend) {
                 case "Flat":
                     bitmap = WatchUi.loadResource(Rez.Drawables.FlatB);
@@ -259,8 +289,5 @@ class TrioDataFieldView extends WatchUi.DataField {
         } else {
             return bitmap;
         }
-
     }
-
-
 }
