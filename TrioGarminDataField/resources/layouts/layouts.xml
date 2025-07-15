@@ -4,7 +4,8 @@
         <drawable class="Background" />
         <label id="label" x="center" y="center" color="Graphics.COLOR_DK_GRAY" justification="Graphics.TEXT_JUSTIFY_CENTER" font="Graphics.FONT_SYSTEM_XTINY" />
         <label id="value" x="center" y="center" color="Graphics.COLOR_WHITE" justification="Graphics.TEXT_JUSTIFY_CENTER" font="Graphics.FONT_SYSTEM_LARGE" />
-        <label id="valueDelta" x="center" y="center" color="Graphics.COLOR_WHITE" justification="Graphics.TEXT_JUSTIFY_CENTER" font="Graphics.FONT_SYSTEM_SMALL" />
+        <!-- <label id="valueDelta" x="center" y="center" color="Graphics.COLOR_WHITE" justification="Graphics.TEXT_JUSTIFY_CENTER" font="Graphics.FONT_SYSTEM_SMALL" /> -->
+        <label id="valueIOB" x="center" y="center" color="Graphics.COLOR_WHITE" justification="Graphics.TEXT_JUSTIFY_CENTER" font="Graphics.FONT_SYSTEM_SMALL" />
         <label id="valueTime" x="center" y="center" color="Graphics.COLOR_WHITE" justification="Graphics.TEXT_JUSTIFY_CENTER" font="Graphics.FONT_SYSTEM_XTINY" />
         <label id="valueAiSR" x="center" y="center" color="Graphics.COLOR_WHITE" justification="Graphics.TEXT_JUSTIFY_CENTER" font="Graphics.FONT_SYSTEM_SMALL" />
         <bitmap id="arrow" x="center" y="center" filename="../drawables/Unknown.svg" scaleX="6%" scaleY="6%" scaleRelativeTo="screen">
@@ -16,6 +17,11 @@
             <palette>
                 <color>90EE90</color>
             </palette> 
+        </bitmap>
+        <bitmap id="iobIcon" x="center" y="center" filename="../drawables/drop.svg" scaleX="6%" scaleY="6%" scaleRelativeTo="screen">
+            <palette>
+                <color>00B3D2</color>
+            </palette>
         </bitmap>
     </layout>
 

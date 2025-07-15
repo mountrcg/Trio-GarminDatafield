@@ -3,6 +3,7 @@
 // AUTHORS :
 //          Created by ivalkou - https://github.com/ivalkou
 //          Modify by Pierre Lagarde - https://github.com/avouspierre
+//          Added IOB support with blue drop icon (delta code preserved)
 // COPYRIGHT : (c) 2023 ivalkou / Lagarde
 //
 
@@ -52,9 +53,9 @@ class TrioDataFieldView extends WatchUi.DataField {
             var valueViewArrow = View.findDrawableById("arrow");
             valueViewArrow.locX = valueView.locX + 30;
             valueViewArrow.locY = valueViewArrow.locY - 10;
-            var valueViewDelta = View.findDrawableById("valueDelta");
+/*             var valueViewDelta = View.findDrawableById("valueDelta");
             valueViewDelta.locX = valueViewDelta.locX - 65;
-            valueViewDelta.locY = valueViewDelta.locY + 20;
+            valueViewDelta.locY = valueViewDelta.locY + 20; */
             var valueViewTime = View.findDrawableById("valueTime");
             valueViewTime.locX = valueViewTime.locX - 15;
             valueViewTime.locY = valueViewTime.locY + 20;
@@ -64,6 +65,16 @@ class TrioDataFieldView extends WatchUi.DataField {
             var valueViewAiSR = View.findDrawableById("valueAiSR");
             valueViewAiSR.locX = valueViewAiSR.locX + 57;
             valueViewAiSR.locY = valueViewAiSR.locY + 20;
+            
+            // IOB positioning (if you have valueIOB in your layout)
+            var valueViewIOB = View.findDrawableById("valueIOB");
+            valueViewIOB.locX = valueViewIOB.locX - 65;
+            valueViewIOB.locY = valueViewIOB.locY + 20;
+            
+            // IOB icon positioning (if you have iobIcon in your layout)
+            var valueViewIOBIcon = View.findDrawableById("iobIcon");
+            valueViewIOBIcon.locX = valueViewIOBIcon.locX - 95;
+            valueViewIOBIcon.locY = valueViewIOBIcon.locY + 22;
         }
 
         (View.findDrawableById("label") as Text).setText(Rez.Strings.label);
@@ -112,31 +123,49 @@ class TrioDataFieldView extends WatchUi.DataField {
         // Set the foreground color and value
         var value = View.findDrawableById("value") as Text;
         var valueTime = View.findDrawableById("valueTime") as Text;
-        var valueDelta = View.findDrawableById("valueDelta") as Text;
+        // var valueDelta = View.findDrawableById("valueDelta") as Text;
         var valueAiSR = View.findDrawableById("valueAiSR") as Text;
+        
+        // Handle IOB if it exists in layout
+        var valueIOB = View.findDrawableById("valueIOB") as Text;
+        
         if (getBackgroundColor() == Graphics.COLOR_BLACK) {
             value.setColor(Graphics.COLOR_WHITE);
             valueTime.setColor(Graphics.COLOR_WHITE);
-            valueDelta.setColor(Graphics.COLOR_WHITE);
+            //valueDelta.setColor(Graphics.COLOR_WHITE);
             valueAiSR.setColor(Graphics.COLOR_WHITE);
+            if (valueIOB != null) {
+                valueIOB.setColor(Graphics.COLOR_WHITE);
+            }
         } else {
             value.setColor(Graphics.COLOR_BLACK);
             valueTime.setColor(Graphics.COLOR_BLACK);
-            valueDelta.setColor(Graphics.COLOR_BLACK);
+            //valueDelta.setColor(Graphics.COLOR_BLACK);
             valueAiSR.setColor(Graphics.COLOR_BLACK);
+            valueIOB.setColor(Graphics.COLOR_BLACK);
         }
+        
         value.setText(bgString);
-        valueDelta.setText(deltaString);
+        //valueDelta.setText(deltaString);
         valueTime.setText(loopString);
         valueAiSR.setText(aiSRString);
+        
+        // Set IOB text if element exists
+        valueIOB.setText(iobString);
 
         var arrowView = View.findDrawableById("arrow") as Bitmap;
         var aiSRIconView = View.findDrawableById("aiSRIcon") as Bitmap;
+        
+        // Handle IOB icon if it exists in layout
+        var iobIconView = View.findDrawableById("iobIcon") as Bitmap;
         
         if (getBackgroundColor() == Graphics.COLOR_BLACK) {
              arrowView.setBitmap(getDirection(status));
              if (aiSRIconView != null) {
                  aiSRIconView.setBitmap(WatchUi.loadResource(Rez.Drawables.aiSRDark)); // Light green for dark background
+             }
+             if (iobIconView != null) {
+                 iobIconView.setBitmap(WatchUi.loadResource(Rez.Drawables.iobLight)); // Light blue for dark background
              }
         }
         else {
@@ -144,7 +173,11 @@ class TrioDataFieldView extends WatchUi.DataField {
             if (aiSRIconView != null) {
                 aiSRIconView.setBitmap(WatchUi.loadResource(Rez.Drawables.aiSRLight)); // Dark green for light background
             }
+            if (iobIconView != null) {
+                iobIconView.setBitmap(WatchUi.loadResource(Rez.Drawables.iobDark)); // Bright blue for light background
+            }
         }
+        
         // Call parent's onUpdate(dc) to redraw the layout
         View.onUpdate(dc);
     }

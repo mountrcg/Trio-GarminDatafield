@@ -14,6 +14,18 @@
         </palette>
     </bitmap>
 
+    <!-- IOB drop icons -->
+    <bitmap id="iobDark" x="center" y="center" filename="drop.svg" scaleX="6%" scaleY="6%" scaleRelativeTo="screen">
+        <palette>
+            <color>00B3D2</color> <!-- Bright blue for light backgrounds -->
+        </palette>
+    </bitmap>
+    <bitmap id="iobLight" x="center" y="center" filename="drop.svg" scaleX="6%" scaleY="6%" scaleRelativeTo="screen">
+        <palette>
+            <color>87CEEB</color> <!-- Light blue for dark backgrounds -->
+        </palette>
+    </bitmap>
+
     <!-- Arrows -->
 
     <bitmap id="Flat" filename="Flat.svg" scaleX="7%" scaleY="7%" scaleRelativeTo="screen"> 
