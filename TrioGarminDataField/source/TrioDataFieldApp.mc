@@ -44,17 +44,17 @@ class TrioDataFieldApp extends Application.AppBase {
         var fourMinutesAgo = currentTime - 240;  // 240 seconds = 4 minutes
 
         var sample = {
-            "glucose" => "60",
+            "glucose" => "299",
             "lastLoopDateInterval" => fourMinutesAgo,  // Always 4 minutes ago
-            "delta" => "-20",
-            "iob" => "2.42",
+            "delta" => "-25",
+            "iob" => "12.42",
             "cob" => "70.2",
             "eventualBGRaw" => "100",
             "trendRaw" => "FortyFiveDown",
             "aiSR" => "2.66"
         } as Dictionary;
     //uncomment for testing
-    //Application.Storage.setValue("status", sample);
+    Application.Storage.setValue("status", sample);
     }
 
     function onBackgroundData(data) {

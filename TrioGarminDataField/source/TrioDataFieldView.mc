@@ -20,54 +20,97 @@ class TrioDataFieldView extends WatchUi.DataField {
 
     // Set your layout here. Anytime the size of obscurity of
     // the draw context is changed this will be called.
-    function onLayout(dc as Dc) as Void {
-        var obscurityFlags = DataField.getObscurityFlags();
+// Modified onLayout function with proper vertical alignment
+function onLayout(dc as Dc) as Void {
+    var obscurityFlags = DataField.getObscurityFlags();
 
-        // Top left quadrant so we'll use the top left layout
-        if (obscurityFlags == (OBSCURE_TOP | OBSCURE_LEFT)) {
-            View.setLayout(Rez.Layouts.TopLeftLayout(dc));
+    // Top left quadrant so we'll use the top left layout
+    if (obscurityFlags == (OBSCURE_TOP | OBSCURE_LEFT)) {
+        View.setLayout(Rez.Layouts.TopLeftLayout(dc));
 
-        // Top right quadrant so we'll use the top right layout
-        } else if (obscurityFlags == (OBSCURE_TOP | OBSCURE_RIGHT)) {
-            View.setLayout(Rez.Layouts.TopRightLayout(dc));
+    // Top right quadrant so we'll use the top right layout
+    } else if (obscurityFlags == (OBSCURE_TOP | OBSCURE_RIGHT)) {
+        View.setLayout(Rez.Layouts.TopRightLayout(dc));
 
-        // Bottom left quadrant so we'll use the bottom left layout
-        } else if (obscurityFlags == (OBSCURE_BOTTOM | OBSCURE_LEFT)) {
-            View.setLayout(Rez.Layouts.BottomLeftLayout(dc));
+    // Bottom left quadrant so we'll use the bottom left layout
+    } else if (obscurityFlags == (OBSCURE_BOTTOM | OBSCURE_LEFT)) {
+        View.setLayout(Rez.Layouts.BottomLeftLayout(dc));
 
-        // Bottom right quadrant so we'll use the bottom right layout
-        } else if (obscurityFlags == (OBSCURE_BOTTOM | OBSCURE_RIGHT)) {
-            View.setLayout(Rez.Layouts.BottomRightLayout(dc));
+    // Bottom right quadrant so we'll use the bottom right layout
+    } else if (obscurityFlags == (OBSCURE_BOTTOM | OBSCURE_RIGHT)) {
+        View.setLayout(Rez.Layouts.BottomRightLayout(dc));
 
-        // Use the generic, centered layout
-        } else {
-            View.setLayout(Rez.Layouts.MainLayout(dc));
-            // Basic positioning for all elements
-            var labelView = View.findDrawableById("label");
-            labelView.locX = labelView.locX - 40;
-            labelView.locY = labelView.locY - 10;
-            var valueView = View.findDrawableById("value");
-            valueView.locX = valueView.locX + 5;
-            valueView.locY = valueView.locY - 10;
-            var valueViewArrow = View.findDrawableById("arrow");
-            valueViewArrow.locX = valueView.locX + 30;
-            valueViewArrow.locY = valueViewArrow.locY - 10;
-            var valueViewDelta = View.findDrawableById("valueDelta");
-            valueViewDelta.locX = valueViewDelta.locX - 65;
-            valueViewDelta.locY = valueViewDelta.locY + 20;
-            var valueViewTime = View.findDrawableById("valueTime");
-            valueViewTime.locX = valueViewTime.locX - 15;
-            valueViewTime.locY = valueViewTime.locY + 20;
-            var valueViewAiSRIcon = View.findDrawableById("aiSRIcon");
-            valueViewAiSRIcon.locX = valueViewAiSRIcon.locX + 20;
-            valueViewAiSRIcon.locY = valueViewAiSRIcon.locY + 22;
-            var valueViewAiSR = View.findDrawableById("valueAiSR");
-            valueViewAiSR.locX = valueViewAiSR.locX + 57;
-            valueViewAiSR.locY = valueViewAiSR.locY + 20;
-        }
-
-        (View.findDrawableById("label") as Text).setText(Rez.Strings.label);
+    // Use the generic, centered layout
+    } else {
+        View.setLayout(Rez.Layouts.MainLayout(dc));
+        
+        // Get screen dimensions for percentage calculations
+        var screenWidth = dc.getWidth();
+        var screenHeight = dc.getHeight();
+        var centerX = screenWidth / 2;
+        var centerY = screenHeight / 2;
+        
+        // Get font heights to calculate proper alignment
+        var largeFont = Graphics.FONT_SYSTEM_LARGE;
+        var smallFont = Graphics.FONT_SYSTEM_SMALL;
+        var xtinyFont = Graphics.FONT_SYSTEM_XTINY;
+        
+        // Calculate font heights
+        var largeFontHeight = dc.getFontHeight(largeFont);
+        var smallFontHeight = dc.getFontHeight(smallFont);
+        var xtinyFontHeight = dc.getFontHeight(xtinyFont);
+        
+        // Define two baseline Y positions - moved higher to use space better
+        var firstLineBaseY = centerY - (screenHeight * 0.35);   // Moved up from 0.15
+        var secondLineBaseY = centerY + (screenHeight * 0.05);  // Moved up from 0.15  
+        
+        // Calculate Y positions to align all text baselines
+        // Use the largest font as reference and adjust others relative to it
+        var largeBaseline = firstLineBaseY;
+        var xtinyAdjustment = (largeFontHeight - xtinyFontHeight) / 2;  // Center smaller fonts
+        var smallAdjustment = (largeFontHeight - smallFontHeight) / 2;
+        
+        // FIRST LINE - 60 centered, BG and arrow close but allowing for max width
+        var labelView = View.findDrawableById("label");  // "BG" - XTINY font
+        // Position BG to accommodate max width "266" - calculate text width and offset accordingly
+        var maxBGWidth = dc.getTextWidthInPixels("266", xtinyFont);
+        labelView.locX = centerX - maxBGWidth - (screenWidth * 0.04); // Small gap from "60"
+        labelView.locY = largeBaseline + xtinyAdjustment;
+        
+        var valueView = View.findDrawableById("value");   // "60" - LARGE font (centered)
+        valueView.locX = centerX;  // Exactly centered
+        valueView.locY = largeBaseline;
+        
+        var valueViewArrow = View.findDrawableById("arrow");  // Arrow - Bitmap
+        // Position arrow close to the right of "60" 
+        var valueWidth = dc.getTextWidthInPixels("999", largeFont); // Max expected width
+        valueViewArrow.locX = centerX + (valueWidth / 2) + (screenWidth * 0.02); // Small gap from "60"
+        valueViewArrow.locY = largeBaseline + (largeFontHeight / 2) - (largeFontHeight * 0.2); // Center with text middle
+        
+        // SECOND LINE - Use same alignment logic
+        var secondLineLargestHeight = smallFontHeight; // Largest font on second line
+        var secondLineBaseline = secondLineBaseY;
+        var secondXtinyAdjustment = (secondLineLargestHeight - xtinyFontHeight) / 2;
+        
+        var valueViewDelta = View.findDrawableById("valueDelta");  // "-20" - SMALL font
+        valueViewDelta.locX = centerX - (screenWidth * 0.30);     
+        valueViewDelta.locY = secondLineBaseline;
+        
+        var valueViewTime = View.findDrawableById("valueTime");   // "(5m)" - XTINY font
+        valueViewTime.locX = centerX - (screenWidth * 0.10);     
+        valueViewTime.locY = secondLineBaseline + secondXtinyAdjustment;
+        
+        var valueViewAiSRIcon = View.findDrawableById("aiSRIcon"); // Green icon - Bitmap
+        valueViewAiSRIcon.locX = centerX + (screenWidth * 0.03);  
+        valueViewAiSRIcon.locY = secondLineBaseline + (smallFontHeight / 2) - (smallFontHeight * 0.2);
+        
+        var valueViewAiSR = View.findDrawableById("valueAiSR");   // "2.66" - SMALL font
+        valueViewAiSR.locX = centerX + (screenWidth * 0.20);     
+        valueViewAiSR.locY = secondLineBaseline;
     }
+
+    (View.findDrawableById("label") as Text).setText(Rez.Strings.label);
+}
 
     // The given info object contains all the current workout information.
     // Calculate a value and save it locally in this method.
