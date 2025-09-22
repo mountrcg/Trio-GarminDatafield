@@ -119,78 +119,96 @@ function onLayout(dc as Dc) as Void {
     function compute(info) {
         }
 
-    // Display the value you computed here. This will be called
-    // once a second when the data field is visible.
-    function onUpdate(dc as Dc) as Void {
-        var bgString;
-        var loopColor;
-        var loopString;
-        var deltaString;
-        var aiSRString;
-        var iobString;
-        var status = Application.Storage.getValue("status") as Dictionary;
+function onUpdate(dc as Dc) as Void {
+    var bgString;
+    var loopColor;
+    var loopString;
+    var deltaString;
+    var aiSRString;
+    var iobString;
+    var status = Application.Storage.getValue("status") as Dictionary;
 
-        if (status == null) {
-            bgString = "---";
-            loopColor = getLoopColor(-1);
-            loopString = "(xx)";
-            deltaString = "??";
-            aiSRString = "??";
-            iobString = "??";
-        } else {
-            var bg = status["glucose"] as String;
-            bgString = (bg == null) ? "--" : bg as String;
-            var min = getMinutes(status);
-            loopColor = getLoopColor(min);
-            loopString = (min < 0 ? "(--)" : "(" + min.format("%d")) + "m)" as String;
-            deltaString = getDeltaText(status) as String;
-            aiSRString = getAiSRText(status) as String;
-            iobString = getIOBText(status) as String;
-        }
-
-        // Set the background color
-        //View.findDrawableById("Background").setColor(loopColor);
-        (View.findDrawableById("Background") as Text).setColor(loopColor);
-        
-        // Set the foreground color and value
-        var value = View.findDrawableById("value") as Text;
-        var valueTime = View.findDrawableById("valueTime") as Text;
-        var valueDelta = View.findDrawableById("valueDelta") as Text;
-        var valueAiSR = View.findDrawableById("valueAiSR") as Text;
-        if (getBackgroundColor() == Graphics.COLOR_BLACK) {
-            value.setColor(Graphics.COLOR_WHITE);
-            valueTime.setColor(Graphics.COLOR_WHITE);
-            valueDelta.setColor(Graphics.COLOR_WHITE);
-            valueAiSR.setColor(Graphics.COLOR_WHITE);
-        } else {
-            value.setColor(Graphics.COLOR_BLACK);
-            valueTime.setColor(Graphics.COLOR_BLACK);
-            valueDelta.setColor(Graphics.COLOR_BLACK);
-            valueAiSR.setColor(Graphics.COLOR_BLACK);
-        }
-        value.setText(bgString);
-        valueDelta.setText(deltaString);
-        valueTime.setText(loopString);
-        valueAiSR.setText(aiSRString);
-
-        var arrowView = View.findDrawableById("arrow") as Bitmap;
-        var aiSRIconView = View.findDrawableById("aiSRIcon") as Bitmap;
-        
-        if (getBackgroundColor() == Graphics.COLOR_BLACK) {
-             arrowView.setBitmap(getDirection(status));
-             if (aiSRIconView != null) {
-                 aiSRIconView.setBitmap(WatchUi.loadResource(Rez.Drawables.aiSRDark)); // Light green for dark background
-             }
-        }
-        else {
-            arrowView.setBitmap(getDirectionBlack(status));
-            if (aiSRIconView != null) {
-                aiSRIconView.setBitmap(WatchUi.loadResource(Rez.Drawables.aiSRLight)); // Dark green for light background
-            }
-        }
-        // Call parent's onUpdate(dc) to redraw the layout
-        View.onUpdate(dc);
+    if (status == null) {
+        bgString = "---";
+        loopColor = getLoopColor(-1);
+        loopString = "(xx)";
+        deltaString = "??";
+        aiSRString = "??";
+        iobString = "??";
+    } else {
+        var bg = status["glucose"] as String;
+        bgString = (bg == null) ? "--" : bg as String;
+        var min = getMinutes(status);
+        loopColor = getLoopColor(min);
+        loopString = (min < 0 ? "(--)" : "(" + min.format("%d")) + "m)" as String;
+        deltaString = getDeltaText(status) as String;
+        aiSRString = getAiSRText(status) as String;
+        iobString = getIOBText(status) as String;
     }
+
+    // Dynamic positioning adjustment for main layout only
+    var obscurityFlags = DataField.getObscurityFlags();
+    if (obscurityFlags == 0) { // Main layout
+        var screenWidth = dc.getWidth();
+        var centerX = screenWidth / 2;
+        var largeFont = Graphics.FONT_SYSTEM_LARGE;
+        var xtinyFont = Graphics.FONT_SYSTEM_XTINY;
+        
+        // Calculate actual glucose value width and adjust BG and arrow positions
+        var currentValueWidth = dc.getTextWidthInPixels(bgString, largeFont);
+        var maxBGWidth = dc.getTextWidthInPixels("BG", xtinyFont);
+        
+        // Update BG position based on actual glucose value width
+        var labelView = View.findDrawableById("label");
+        labelView.locX = centerX - (currentValueWidth / 2) - maxBGWidth - (screenWidth * 0.02);
+        
+        // Update arrow position based on actual glucose value width  
+        var valueViewArrow = View.findDrawableById("arrow");
+        valueViewArrow.locX = centerX + (currentValueWidth / 2) + (screenWidth * 0.02);
+    }
+
+    // Set the background color
+    (View.findDrawableById("Background") as Text).setColor(loopColor);
+    
+    // Set the foreground color and value
+    var value = View.findDrawableById("value") as Text;
+    var valueTime = View.findDrawableById("valueTime") as Text;
+    var valueDelta = View.findDrawableById("valueDelta") as Text;
+    var valueAiSR = View.findDrawableById("valueAiSR") as Text;
+    if (getBackgroundColor() == Graphics.COLOR_BLACK) {
+        value.setColor(Graphics.COLOR_WHITE);
+        valueTime.setColor(Graphics.COLOR_WHITE);
+        valueDelta.setColor(Graphics.COLOR_WHITE);
+        valueAiSR.setColor(Graphics.COLOR_WHITE);
+    } else {
+        value.setColor(Graphics.COLOR_BLACK);
+        valueTime.setColor(Graphics.COLOR_BLACK);
+        valueDelta.setColor(Graphics.COLOR_BLACK);
+        valueAiSR.setColor(Graphics.COLOR_BLACK);
+    }
+    value.setText(bgString);
+    valueDelta.setText(deltaString);
+    valueTime.setText(loopString);
+    valueAiSR.setText(aiSRString);
+
+    var arrowView = View.findDrawableById("arrow") as Bitmap;
+    var aiSRIconView = View.findDrawableById("aiSRIcon") as Bitmap;
+    
+    if (getBackgroundColor() == Graphics.COLOR_BLACK) {
+         arrowView.setBitmap(getDirection(status));
+         if (aiSRIconView != null) {
+             aiSRIconView.setBitmap(WatchUi.loadResource(Rez.Drawables.aiSRDark));
+         }
+    }
+    else {
+        arrowView.setBitmap(getDirectionBlack(status));
+        if (aiSRIconView != null) {
+            aiSRIconView.setBitmap(WatchUi.loadResource(Rez.Drawables.aiSRLight));
+        }
+    }
+    // Call parent's onUpdate(dc) to redraw the layout
+    View.onUpdate(dc);
+}
 
     function getMinutes(status) as Number {
 

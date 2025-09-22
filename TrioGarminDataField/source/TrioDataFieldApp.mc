@@ -54,7 +54,7 @@ class TrioDataFieldApp extends Application.AppBase {
             "aiSR" => "2.66"
         } as Dictionary;
     //uncomment for testing
-    Application.Storage.setValue("status", sample);
+    //Application.Storage.setValue("status", sample);
     }
 
     function onBackgroundData(data) {
