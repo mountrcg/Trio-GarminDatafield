@@ -51,7 +51,7 @@ class TrioWatchfaceApp extends Application.AppBase {
             "glucose" => "188",
             "lastLoopDateInterval" => lastLoopDateInterval,
             "delta" => "-20",
-            "iob" => "2.42",
+            "iob" => "2.4",
             "cob" => "70.2",
             "isf" => "66.1",
             "aiSR" => "1.63",
@@ -62,17 +62,17 @@ class TrioWatchfaceApp extends Application.AppBase {
         var mmollsampleData = {
             "glucose" => "10,9",
             "lastLoopDateInterval" => lastLoopDateInterval,
-            "delta" => "-2,3",
-            "iob" => "2,9",
-            "cob" => "70,2",
-            "isf" => "3,7",
+            "delta" => "-2.3",
+            "iob" => "2.9",
+            "cob" => "70.2",
+            "isf" => "3.7",
             "aiSR" => "1.63",
-            "eventualBGRaw" => "9,9",
+            "eventualBGRaw" => "9.9",
             "trendRaw" => "FortyFiveDown"
         } as Dictionary;
 
         // Store the sample data
-        // Application.Storage.setValue("status", sampleData);
+        //Application.Storage.setValue("status", mmollsampleData);
     }
 
     function onBackgroundData(data) {
