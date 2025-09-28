@@ -102,8 +102,8 @@ class TrioDataFieldView extends WatchUi.DataField {
 
         // Position IOB value: half its width + 3% right of IOB icon
         if (valueViewIOBIcon != null && valueViewIOB != null) {
-            // Calculate IOB text width
-            var iobTextWidth = dc.getTextWidthInPixels(iobString, Graphics.FONT_SYSTEM_SMALL);
+            // Calculate IOB text width with LARGE font
+            var iobTextWidth = dc.getTextWidthInPixels(iobString, Graphics.FONT_SYSTEM_LARGE);
 
             // Position IOB value: icon position + half text width + 3% spacing
             valueViewIOB.locX = valueViewIOBIcon.locX + (iobTextWidth / 2) + (screenWidth * 0.07);
@@ -114,8 +114,8 @@ class TrioDataFieldView extends WatchUi.DataField {
         var valueViewAiSR = View.findDrawableById("valueAiSR"); 
 
         if (valueViewAiSRIcon != null && valueViewAiSR != null) {
-            // Calculate aiSR text width
-            var aiSRTextWidth = dc.getTextWidthInPixels(aiSRString, Graphics.FONT_SYSTEM_SMALL);
+            // Calculate aiSR text width with LARGE font
+            var aiSRTextWidth = dc.getTextWidthInPixels(aiSRString, Graphics.FONT_SYSTEM_LARGE);
 
             // Position aiSR icon relative to the text's left edge (accounting for right justification)
             valueViewAiSRIcon.locX = (screenWidth * 0.92) - aiSRTextWidth - (screenWidth * 0.07);
@@ -123,8 +123,8 @@ class TrioDataFieldView extends WatchUi.DataField {
 
         // Dynamically position loop time (valueTime) centered between IOB value and aiSR icon
         if (valueViewTime != null && valueViewIOB != null && valueViewAiSRIcon != null) {
-            // Calculate the right edge of IOB value
-            var iobTextWidth = dc.getTextWidthInPixels(iobString, Graphics.FONT_SYSTEM_SMALL);
+            // Calculate the right edge of IOB value with LARGE font
+            var iobTextWidth = dc.getTextWidthInPixels(iobString, Graphics.FONT_SYSTEM_LARGE);
             var iobRightEdge = valueViewIOB.locX + (iobTextWidth / 2);
             
             // The left edge of aiSR icon is already at valueViewAiSRIcon.locX
@@ -141,21 +141,29 @@ class TrioDataFieldView extends WatchUi.DataField {
         var valueTime = View.findDrawableById("valueTime") as Text;
         var valueAiSR = View.findDrawableById("valueAiSR") as Text;
         var valueIOB = View.findDrawableById("valueIOB") as Text;
+        
+        // Cast labelView as Text for color setting
         var bgLabel = View.findDrawableById("label") as Text;
         
         if (getBackgroundColor() == Graphics.COLOR_BLACK) {
+            // Black background - use light/bright colors
+            if (bgLabel != null) {
+                bgLabel.setColor(Graphics.COLOR_GREEN);  // Bright green matching aiSRDark
+            }
             value.setColor(Graphics.COLOR_WHITE);
             valueTime.setColor(Graphics.COLOR_WHITE);
             valueAiSR.setColor(Graphics.COLOR_WHITE);
-            bgLabel.setColor(Graphics.COLOR_GREEN);
             if (valueIOB != null) {
                 valueIOB.setColor(Graphics.COLOR_WHITE);
             }
         } else {
+            // White background - use dark colors
+            if (bgLabel != null) {
+                bgLabel.setColor(Graphics.COLOR_DK_GREEN);  // Dark green matching aiSRLight (008000)
+            }
             value.setColor(Graphics.COLOR_BLACK);
             valueTime.setColor(Graphics.COLOR_BLACK);
             valueAiSR.setColor(Graphics.COLOR_BLACK);
-            bgLabel.setColor(Graphics.COLOR_DK_GREEN);
             if (valueIOB != null) {
                 valueIOB.setColor(Graphics.COLOR_BLACK);
             }
