@@ -74,8 +74,8 @@
             </palette> 
         </bitmap>
                
-        <label id="valueAiSR" x="81%" y="5%" color="Graphics.COLOR_WHITE" 
-               justification="Graphics.TEXT_JUSTIFY_CENTER" 
+        <label id="valueAiSR" x="92%" y="5%" color="Graphics.COLOR_WHITE" 
+               justification="Graphics.TEXT_JUSTIFY_RIGHT" 
                font="Graphics.FONT_SYSTEM_SMALL" />
         
         <!-- SECOND LINE (bottom position): BG, glucose value, arrow -->
