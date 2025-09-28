@@ -46,7 +46,7 @@ class TrioDataFieldApp extends Application.AppBase {
             "glucose" => "299",
             "lastLoopDateInterval" => minutesAgo, // Always 4 minutes ago
             "delta" => "-20",
-            "iob" => "-12.3",  // This is what we'll display instead of delta
+            "iob" => "2.3",  // This is what we'll display instead of delta
             "cob" => "18.2",
             "eventualBGRaw" => "122",
             "trendRaw" => "FortyFiveDown",

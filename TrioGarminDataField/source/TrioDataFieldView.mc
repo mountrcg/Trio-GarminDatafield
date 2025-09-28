@@ -51,7 +51,7 @@ class TrioDataFieldView extends WatchUi.DataField {
     function onUpdate(dc as Dc) as Void {
         var bgString;
         var loopColor;
-        var loopString;
+        var evBGString;
         var aiSRString;
         var iobString;
         var status = Application.Storage.getValue("status") as Dictionary;
@@ -59,7 +59,7 @@ class TrioDataFieldView extends WatchUi.DataField {
         if (status == null) {
             bgString = "---";
             loopColor = getLoopColor(-1);
-            loopString = "(xx)";
+            evBGString = "(---)";
             aiSRString = "??";
             iobString = "??";
         } else {
@@ -67,7 +67,9 @@ class TrioDataFieldView extends WatchUi.DataField {
             bgString = (bg == null) ? "--" : bg as String;
             var min = getMinutes(status);
             loopColor = getLoopColor(min);
-            loopString = (min < 0 ? "(--)" : "(" + min.format("%d")) + "m)" as String;
+            // Get eventualBGRaw from status
+            var evBG = status["eventualBGRaw"] as String;
+            evBGString = "(" + ((evBG == null) ? "--" : evBG) + ")" as String;
             aiSRString = getAiSRText(status) as String;
             iobString = getIOBText(status) as String;
         }
@@ -139,11 +141,13 @@ class TrioDataFieldView extends WatchUi.DataField {
         var valueTime = View.findDrawableById("valueTime") as Text;
         var valueAiSR = View.findDrawableById("valueAiSR") as Text;
         var valueIOB = View.findDrawableById("valueIOB") as Text;
+        var bgLabel = View.findDrawableById("label") as Text;
         
         if (getBackgroundColor() == Graphics.COLOR_BLACK) {
             value.setColor(Graphics.COLOR_WHITE);
             valueTime.setColor(Graphics.COLOR_WHITE);
             valueAiSR.setColor(Graphics.COLOR_WHITE);
+            bgLabel.setColor(Graphics.COLOR_GREEN);
             if (valueIOB != null) {
                 valueIOB.setColor(Graphics.COLOR_WHITE);
             }
@@ -151,13 +155,14 @@ class TrioDataFieldView extends WatchUi.DataField {
             value.setColor(Graphics.COLOR_BLACK);
             valueTime.setColor(Graphics.COLOR_BLACK);
             valueAiSR.setColor(Graphics.COLOR_BLACK);
+            bgLabel.setColor(Graphics.COLOR_DK_GREEN);
             if (valueIOB != null) {
                 valueIOB.setColor(Graphics.COLOR_BLACK);
             }
         }
         
         value.setText(bgString);
-        valueTime.setText(loopString);
+        valueTime.setText(evBGString);
         valueAiSR.setText(aiSRString);
         if (valueIOB != null) {
             valueIOB.setText(iobString);

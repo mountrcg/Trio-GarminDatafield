@@ -4,7 +4,7 @@
         <drawable class="Background" />
         
         <!-- FIRST LINE: BG, glucose value, arrow -->
-        <label id="label" x="30%" y="25%" color="Graphics.COLOR_DK_GRAY" 
+        <label id="label" x="30%" y="25%" color="Graphics.COLOR_GREEN" 
                justification="Graphics.TEXT_JUSTIFY_CENTER" 
                font="Graphics.FONT_SYSTEM_XTINY" />
                
@@ -38,7 +38,7 @@
         <bitmap id="aiSRIcon" x="64%" y="72%" filename="../drawables/UpDown.svg" 
                 scaleX="6%" scaleY="6%" scaleRelativeTo="screen">
             <palette>
-                <color>90EE90</color>
+                <color>00FF00</color>
             </palette> 
         </bitmap>
                
@@ -70,7 +70,7 @@
         <bitmap id="aiSRIcon" x="64%" y="12%" filename="../drawables/UpDown.svg" 
                 scaleX="6%" scaleY="6%" scaleRelativeTo="screen">
             <palette>
-                <color>90EE90</color>
+                <color>00FF00</color>
             </palette> 
         </bitmap>
                
@@ -79,7 +79,7 @@
                font="Graphics.FONT_SYSTEM_SMALL" />
         
         <!-- SECOND LINE (bottom position): BG, glucose value, arrow -->
-        <label id="label" x="35%" y="60%" color="Graphics.COLOR_DK_GRAY" 
+        <label id="label" x="35%" y="60%" color="Graphics.COLOR_GREEN" 
                justification="Graphics.TEXT_JUSTIFY_CENTER" 
                font="Graphics.FONT_SYSTEM_XTINY" />
                
