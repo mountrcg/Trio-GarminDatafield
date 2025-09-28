@@ -15,69 +15,10 @@ import Toybox.WatchUi;
 
 class TrioDataFieldView extends WatchUi.DataField {
 
+    private var isBottomPosition = false;
+
     function initialize() {
         DataField.initialize();
-    }
-
-    // Set your layout here. Anytime the size of obscurity of
-    // the draw context is changed this will be called.
-    function onLayout(dc as Dc) as Void {
-        var obscurityFlags = DataField.getObscurityFlags();
-
-        // Top left quadrant so we'll use the top left layout
-        if (obscurityFlags == (OBSCURE_TOP | OBSCURE_LEFT)) {
-            View.setLayout(Rez.Layouts.TopLeftLayout(dc));
-
-        // Top right quadrant so we'll use the top right layout
-        } else if (obscurityFlags == (OBSCURE_TOP | OBSCURE_RIGHT)) {
-            View.setLayout(Rez.Layouts.TopRightLayout(dc));
-
-        // Bottom left quadrant so we'll use the bottom left layout
-        } else if (obscurityFlags == (OBSCURE_BOTTOM | OBSCURE_LEFT)) {
-            View.setLayout(Rez.Layouts.BottomLeftLayout(dc));
-
-        // Bottom right quadrant so we'll use the bottom right layout
-        } else if (obscurityFlags == (OBSCURE_BOTTOM | OBSCURE_RIGHT)) {
-            View.setLayout(Rez.Layouts.BottomRightLayout(dc));
-
-        // Use the generic, centered layout
-        } else {
-            View.setLayout(Rez.Layouts.MainLayout(dc));
-            // Basic positioning for all elements
-            var labelView = View.findDrawableById("label");
-            labelView.locX = labelView.locX - 40;
-            labelView.locY = labelView.locY - 10;
-            var valueView = View.findDrawableById("value");
-            valueView.locX = valueView.locX + 5;
-            valueView.locY = valueView.locY - 10;
-            var valueViewArrow = View.findDrawableById("arrow");
-            valueViewArrow.locX = valueView.locX + 30;
-            valueViewArrow.locY = valueViewArrow.locY - 10;
-/*             var valueViewDelta = View.findDrawableById("valueDelta");
-            valueViewDelta.locX = valueViewDelta.locX - 65;
-            valueViewDelta.locY = valueViewDelta.locY + 20; */
-            var valueViewTime = View.findDrawableById("valueTime");
-            valueViewTime.locX = valueViewTime.locX - 15;
-            valueViewTime.locY = valueViewTime.locY + 20;
-            var valueViewAiSRIcon = View.findDrawableById("aiSRIcon");
-            valueViewAiSRIcon.locX = valueViewAiSRIcon.locX + 20;
-            valueViewAiSRIcon.locY = valueViewAiSRIcon.locY + 22;
-            var valueViewAiSR = View.findDrawableById("valueAiSR");
-            valueViewAiSR.locX = valueViewAiSR.locX + 57;
-            valueViewAiSR.locY = valueViewAiSR.locY + 20;
-            
-            // IOB positioning (if you have valueIOB in your layout)
-            var valueViewIOB = View.findDrawableById("valueIOB");
-            valueViewIOB.locX = valueViewIOB.locX - 65;
-            valueViewIOB.locY = valueViewIOB.locY + 20;
-            
-            // IOB icon positioning (if you have iobIcon in your layout)
-            var valueViewIOBIcon = View.findDrawableById("iobIcon");
-            valueViewIOBIcon.locX = valueViewIOBIcon.locX - 95;
-            valueViewIOBIcon.locY = valueViewIOBIcon.locY + 22;
-        }
-
-        (View.findDrawableById("label") as Text).setText(Rez.Strings.label);
     }
 
     // The given info object contains all the current workout information.
@@ -85,15 +26,32 @@ class TrioDataFieldView extends WatchUi.DataField {
     // Note that compute() and onUpdate() are asynchronous, and there is no
     // guarantee that compute() will be called before onUpdate().
     function compute(info) {
+    }
+
+    function onLayout(dc as Dc) as Void {
+        var obscurityFlags = DataField.getObscurityFlags();
+        
+        // Check if top is obscured (meaning we're in bottom position)
+        // But we need to REVERSE the layout assignment
+        // When OBSCURE_TOP is set, we're in bottom position but need MainLayout (short first line)
+        // When OBSCURE_TOP is not set, we're in top position but need BottomLayout (short second line)
+        if ((obscurityFlags & OBSCURE_TOP) != 0) {
+            // Bottom position - use MainLayout (first line is shorter)
+            isBottomPosition = true;
+            View.setLayout(Rez.Layouts.MainLayout(dc));
+        } else {
+            // Top position - use BottomLayout (second line is shorter)
+            isBottomPosition = false;
+            View.setLayout(Rez.Layouts.BottomLayout(dc));
         }
 
-    // Display the value you computed here. This will be called
-    // once a second when the data field is visible.
+        (View.findDrawableById("label") as Text).setText(Rez.Strings.label);
+    }
+
     function onUpdate(dc as Dc) as Void {
         var bgString;
         var loopColor;
         var loopString;
-        var deltaString;
         var aiSRString;
         var iobString;
         var status = Application.Storage.getValue("status") as Dictionary;
@@ -102,7 +60,6 @@ class TrioDataFieldView extends WatchUi.DataField {
             bgString = "---";
             loopColor = getLoopColor(-1);
             loopString = "(xx)";
-            deltaString = "??";
             aiSRString = "??";
             iobString = "??";
         } else {
@@ -111,28 +68,81 @@ class TrioDataFieldView extends WatchUi.DataField {
             var min = getMinutes(status);
             loopColor = getLoopColor(min);
             loopString = (min < 0 ? "(--)" : "(" + min.format("%d")) + "m)" as String;
-            deltaString = getDeltaText(status) as String;
             aiSRString = getAiSRText(status) as String;
             iobString = getIOBText(status) as String;
         }
 
-        // Set the background color
-        //View.findDrawableById("Background").setColor(loopColor);
+        // ONLY dynamic positioning: adjust BG and arrow based on glucose value width
+        var screenWidth = dc.getWidth();
+        var centerX = screenWidth / 2;
+        var largeFont = Graphics.FONT_SYSTEM_LARGE;
+        var xtinyFont = Graphics.FONT_SYSTEM_XTINY;
+        
+        // Calculate actual glucose value width
+        var currentValueWidth = dc.getTextWidthInPixels(bgString, largeFont);
+        var maxBGWidth = dc.getTextWidthInPixels("BG", xtinyFont);
+        
+        // Adjust BG and arrow positions dynamically
+        var labelView = View.findDrawableById("label");
+        if (labelView != null) {
+            labelView.locX = centerX - (currentValueWidth / 2) - (screenWidth * 0.07);
+        }
+        
+        var valueViewArrow = View.findDrawableById("arrow");
+        if (valueViewArrow != null) {
+            valueViewArrow.locX = centerX + (currentValueWidth / 2) + (screenWidth * 0.03);
+        }
+
+        // Dynamic positioning for second line: IOB icon, IOB value, time, aiSR icon, aiSR value
+        var valueViewIOBIcon = View.findDrawableById("iobIcon");
+        var valueViewIOB = View.findDrawableById("valueIOB");
+        var valueViewTime = View.findDrawableById("valueTime");
+
+        // Position IOB value: half its width + 3% right of IOB icon
+        if (valueViewIOBIcon != null && valueViewIOB != null) {
+            // Calculate IOB text width
+            var iobTextWidth = dc.getTextWidthInPixels(iobString, Graphics.FONT_SYSTEM_SMALL);
+
+            // Position IOB value: icon position + half text width + 3% spacing
+            valueViewIOB.locX = valueViewIOBIcon.locX + (iobTextWidth / 2) + (screenWidth * 0.07);
+        }
+
+        // Position aiSR icon 0.07 left of aiSR value 
+        var valueViewAiSRIcon = View.findDrawableById("aiSRIcon");
+        var valueViewAiSR = View.findDrawableById("valueAiSR"); 
+
+        if (valueViewAiSRIcon != null && valueViewAiSR != null) {
+            // Calculate aiSR text width
+            var aiSRTextWidth = dc.getTextWidthInPixels(aiSRString, Graphics.FONT_SYSTEM_SMALL);
+
+            // Position aiSR icon relative to the text's left edge (accounting for right justification)
+            valueViewAiSRIcon.locX = (screenWidth * 0.92) - aiSRTextWidth - (screenWidth * 0.07);
+        }
+
+        // Dynamically position loop time (valueTime) centered between IOB value and aiSR icon
+        if (valueViewTime != null && valueViewIOB != null && valueViewAiSRIcon != null) {
+            // Calculate the right edge of IOB value
+            var iobTextWidth = dc.getTextWidthInPixels(iobString, Graphics.FONT_SYSTEM_SMALL);
+            var iobRightEdge = valueViewIOB.locX + (iobTextWidth / 2);
+            
+            // The left edge of aiSR icon is already at valueViewAiSRIcon.locX
+            var aiSRIconLeftEdge = valueViewAiSRIcon.locX;
+            
+            // Center the time string between these two points
+            valueViewTime.locX = (iobRightEdge + aiSRIconLeftEdge) / 2;
+        }
+
+        // Set background color and text values
         (View.findDrawableById("Background") as Text).setColor(loopColor);
         
-        // Set the foreground color and value
         var value = View.findDrawableById("value") as Text;
         var valueTime = View.findDrawableById("valueTime") as Text;
-        // var valueDelta = View.findDrawableById("valueDelta") as Text;
         var valueAiSR = View.findDrawableById("valueAiSR") as Text;
-        
-        // Handle IOB if it exists in layout
         var valueIOB = View.findDrawableById("valueIOB") as Text;
         
         if (getBackgroundColor() == Graphics.COLOR_BLACK) {
             value.setColor(Graphics.COLOR_WHITE);
             valueTime.setColor(Graphics.COLOR_WHITE);
-            //valueDelta.setColor(Graphics.COLOR_WHITE);
             valueAiSR.setColor(Graphics.COLOR_WHITE);
             if (valueIOB != null) {
                 valueIOB.setColor(Graphics.COLOR_WHITE);
@@ -140,45 +150,43 @@ class TrioDataFieldView extends WatchUi.DataField {
         } else {
             value.setColor(Graphics.COLOR_BLACK);
             valueTime.setColor(Graphics.COLOR_BLACK);
-            //valueDelta.setColor(Graphics.COLOR_BLACK);
             valueAiSR.setColor(Graphics.COLOR_BLACK);
-            valueIOB.setColor(Graphics.COLOR_BLACK);
+            if (valueIOB != null) {
+                valueIOB.setColor(Graphics.COLOR_BLACK);
+            }
         }
         
         value.setText(bgString);
-        //valueDelta.setText(deltaString);
         valueTime.setText(loopString);
         valueAiSR.setText(aiSRString);
-        
-        // Set IOB text if element exists
-        valueIOB.setText(iobString);
+        if (valueIOB != null) {
+            valueIOB.setText(iobString);
+        }
 
+        // Set icon bitmaps
         var arrowView = View.findDrawableById("arrow") as Bitmap;
         var aiSRIconView = View.findDrawableById("aiSRIcon") as Bitmap;
-        
-        // Handle IOB icon if it exists in layout
         var iobIconView = View.findDrawableById("iobIcon") as Bitmap;
         
         if (getBackgroundColor() == Graphics.COLOR_BLACK) {
-             arrowView.setBitmap(getDirection(status));
-             if (aiSRIconView != null) {
-                 aiSRIconView.setBitmap(WatchUi.loadResource(Rez.Drawables.aiSRDark)); // Light green for dark background
-             }
-             if (iobIconView != null) {
-                 iobIconView.setBitmap(WatchUi.loadResource(Rez.Drawables.iobLight)); // Light blue for dark background
-             }
+            arrowView.setBitmap(getDirection(status));
+            if (aiSRIconView != null) {
+                aiSRIconView.setBitmap(WatchUi.loadResource(Rez.Drawables.aiSRDark));
+            }
+            if (iobIconView != null) {
+                iobIconView.setBitmap(WatchUi.loadResource(Rez.Drawables.iobLight));
+            }
         }
         else {
             arrowView.setBitmap(getDirectionBlack(status));
             if (aiSRIconView != null) {
-                aiSRIconView.setBitmap(WatchUi.loadResource(Rez.Drawables.aiSRLight)); // Dark green for light background
+                aiSRIconView.setBitmap(WatchUi.loadResource(Rez.Drawables.aiSRLight));
             }
             if (iobIconView != null) {
-                iobIconView.setBitmap(WatchUi.loadResource(Rez.Drawables.iobDark)); // Bright blue for light background
+                iobIconView.setBitmap(WatchUi.loadResource(Rez.Drawables.iobDark));
             }
         }
         
-        // Call parent's onUpdate(dc) to redraw the layout
         View.onUpdate(dc);
     }
 

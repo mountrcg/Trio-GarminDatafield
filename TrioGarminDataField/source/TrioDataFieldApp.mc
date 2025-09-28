@@ -41,20 +41,20 @@ class TrioDataFieldApp extends Application.AppBase {
         
         // This will always give you a timestamp from exactly 4 minutes ago
         var currentTime = Time.now().value();
-        var fourMinutesAgo = currentTime - 240; // 240 seconds = 4 minutes
+        var minutesAgo = currentTime - 60; // 240 seconds = 4 minutes
         var sample = {
-            "glucose" => "148",
-            "lastLoopDateInterval" => fourMinutesAgo, // Always 4 minutes ago
+            "glucose" => "299",
+            "lastLoopDateInterval" => minutesAgo, // Always 4 minutes ago
             "delta" => "-20",
-            "iob" => "-0.8",  // This is what we'll display instead of delta
+            "iob" => "-12.3",  // This is what we'll display instead of delta
             "cob" => "18.2",
             "eventualBGRaw" => "122",
             "trendRaw" => "FortyFiveDown",
-            "aiSR" => "0.66"
+            "aiSR" => "0.8"
         } as Dictionary;
         
         //uncomment for testing
-        //Application.Storage.setValue("status", sample);
+        Application.Storage.setValue("status", sample);
     }
 
     function onBackgroundData(data) {
