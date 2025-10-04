@@ -1,3 +1,32 @@
+# Garmin Watch Datafield
+
+The repository contains the data field for Garmin usable with Trio system. 
+
+## How to use 
+
+The easy solution is to download the *.prg files for you garmin devices. The files are available here : https://github.com/mountrcg/...
+
+To install the prg in your devices :
+- Install Garmin Express and configure with your account
+- Attach your watch to computer by USB. You should see your watch as USB-drive then.
+- It's usually named "GARMIN" as device (on Mac too, plus it have drive letter in windows, for example, let's say it's drive "E:").
+Open your watch storage in Explorer or Finder, enter into folder GARMIN and then in its subfolder APP, so you now should be in path like E:\GARMIN\APPS (on Windows) or /GARMIN/GARMIN/APPS  (on Mac, where first "GARMIN" stands for device name).
+- Download any watchface, app, widget with .PRG-file extension format from our file archive you want and put it in that GARMIN/APPS folder.
+- You even can download that file directly to yours watch folder from browser, but be sure to finish download before detachment, or you can have broken unfinished file.
+- Eject garmin's USB-storage, wait until it writes all caches and only then detach your watch from USB.
+- Enter into watch settings and choose ConnectIQ watchface or enable/disable widget or work with that freshly installed app.
+
+## How to start
+
+Download the Garmin SDK.
+You need to install Visual Studio Code. In it you will need to install the Monkey C plugin. 
+Once you have that within Visual Studio Code hit CMD-Shift-P and enter Monkey. You will see all commands for testing and building Garmin apps.
+* use `Monkey C: Open SDK Manager` and download all devices and newest SDK release
+* use `Monkey C: Generate a Developer Key` and follow instructions
+* use `Monkey C: Build for Device` to genrate your own *.prg file to sideload to your watch
+* 
+More information are available here : https://developer.garmin.com/connect-iq/overview/ 
+
 # Developer Setup Guide
 
 ## Quick Start
@@ -37,21 +66,18 @@
 
 ## Configuration Files
 
-### `Config.local` (Your personal settings - NOT in git)
+### `Config.local`
 This file contains your personal development settings:
 - SDK path
 - Preferred device
 - Developer key location
 - Deploy path
 
-### `ConfigOverride.local` (Additional overrides - NOT in git)
+### `ConfigOverride.local` (Your personal settings - NOT in git)
 Optional file for additional overrides that take precedence over Config.local.
 
 ### `properties.mk` (Shared defaults - IN git)
 Contains default settings that work for most developers. Your Config.local overrides these.
-
-### `ConfigExample.local` (Template - IN git)
-Template showing all available settings with examples for different operating systems.
 
 ## Common Settings
 
@@ -128,3 +154,4 @@ Configuration settings are loaded in this order (later overrides earlier):
 1. `properties.mk` defaults
 2. `Config.local` (your main config)
 3. `ConfigOverride.local` (optional additional overrides)
+
