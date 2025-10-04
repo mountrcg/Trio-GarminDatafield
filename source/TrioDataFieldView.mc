@@ -248,7 +248,7 @@ class TrioDataFieldView extends WatchUi.DataField {
         if (status == null) {
             return "--";
         }
-        var aiSR = status["aiSR"] as String;
+        var aiSR = status["sensRatio"] as String;
         var aiSRString = (aiSR == null) ? "--" : aiSR;
         return aiSRString;
     }
