@@ -1,10 +1,10 @@
-# Garmin Watch
+# Garmin Watch Datafield
 
-The repository gathers all watch faces and data fields for Garmin usable with Trio system. 
+The repository contains the data field for Garmin usable with Trio system. 
 
 # How to use 
 
-The easy solution is to download directly the watch faces and data fields for you garmin devices. The files are available here : https://github.com/mountrcg/garminWatch/releases 
+The easy solution is to download the *.prg files for you garmin devices. The files are available here : https://github.com/mountrcg/...
 
 To install the prg in your devices :
 - Install Garmin Express and configure with your account
@@ -16,14 +16,16 @@ Open your watch storage in Explorer or Finder, enter into folder GARMIN and then
 - Eject garmin's USB-storage, wait until it writes all caches and only then detach your watch from USB.
 - Enter into watch settings and choose ConnectIQ watchface or enable/disable widget or work with that freshly installed app.
 
-
-You don't find your device/watch in release... ask at [Trio Discord in the channel Garmin](https://discord.com/channels/1020905149037813862/1239983061618135040)
-
-
 # How to compile and adapt the code 
 
-You need to install Monkey C, the Garmin SDK and compile (Build for device) with the use of Visual Studio Code (CMD-Shift-P: Monkey ...). 
-All information are available here : https://developer.garmin.com/connect-iq/overview/ 
+Download the Garmin SDK.
+You need to install Visual Studio Code. In it you will need to install the Monkey C plugin. 
+Once you have that within Visual Studio Code hit CMD-Shift-P and enter Monkey. You will see all commands for testing and building Garmin apps.
+* use `Monkey C: Open SDK Manager` and download all devices and newest SDK release
+* use `Monkey C: Generate a Developer Key` and follow instructions
+* use `Monkey C: Build for Device` to genrate your own *.prg file to sideload to your watch
+* 
+More information are available here : https://developer.garmin.com/connect-iq/overview/ 
 
 
 (c) Copyright I guess Pierre & Ivan 2023
