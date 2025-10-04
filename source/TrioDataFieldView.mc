@@ -52,7 +52,8 @@ class TrioDataFieldView extends WatchUi.DataField {
         var bgString;
         var loopColor;
         var evBGString;
-        var aiSRString;
+        var rightSideString;  // Either sensRatio or COB
+        var showingSensRatio = false;
         var iobString;
         var status = Application.Storage.getValue("status") as Dictionary;
 
@@ -60,7 +61,7 @@ class TrioDataFieldView extends WatchUi.DataField {
             bgString = "---";
             loopColor = getLoopColor(-1);
             evBGString = "(---)";
-            aiSRString = "??";
+            rightSideString = "??";
             iobString = "??";
         } else {
             var bg = status["glucose"] as String;
@@ -70,7 +71,22 @@ class TrioDataFieldView extends WatchUi.DataField {
             // Get eventualBGRaw from status
             var evBG = status["eventualBGRaw"] as String;
             evBGString = "(" + ((evBG == null) ? "--" : evBG) + ")" as String;
-            aiSRString = getAiSRText(status) as String;
+            
+            // Check for sensRatio first, then COB
+            var sensRatio = status["sensRatio"];
+            var cob = status["cob"];
+            
+            if (sensRatio != null) {
+                rightSideString = getSensRatioText(status) as String;
+                showingSensRatio = true;
+            } else if (cob != null) {
+                rightSideString = getCOBText(status) as String;
+                showingSensRatio = false;
+            } else {
+                rightSideString = "??";
+                showingSensRatio = false;
+            }
+            
             iobString = getIOBText(status) as String;
         }
 
@@ -109,29 +125,44 @@ class TrioDataFieldView extends WatchUi.DataField {
             valueViewIOB.locX = valueViewIOBIcon.locX + (iobTextWidth / 2) + (screenWidth * 0.07);
         }
 
-        // Position aiSR icon 0.07 left of aiSR value 
+        // Handle right side - either sensRatio with icon or COB without icon
         var valueViewAiSRIcon = View.findDrawableById("aiSRIcon");
-        var valueViewAiSR = View.findDrawableById("valueAiSR"); 
+        var valueViewAiSR = View.findDrawableById("valueAiSR");
 
-        if (valueViewAiSRIcon != null && valueViewAiSR != null) {
-            // Calculate aiSR text width with LARGE font
-            var aiSRTextWidth = dc.getTextWidthInPixels(aiSRString, Graphics.FONT_SYSTEM_LARGE);
+        if (showingSensRatio) {
+            // Position aiSR icon 0.07 left of aiSR value 
+            if (valueViewAiSRIcon != null && valueViewAiSR != null) {
+                // Calculate sensRatio text width with LARGE font
+                var sensRatioTextWidth = dc.getTextWidthInPixels(rightSideString, Graphics.FONT_SYSTEM_LARGE);
 
-            // Position aiSR icon relative to the text's left edge (accounting for right justification)
-            valueViewAiSRIcon.locX = (screenWidth * 0.92) - aiSRTextWidth - (screenWidth * 0.07);
+                // Position sensRatio icon relative to the text's left edge (accounting for right justification)
+                valueViewAiSRIcon.locX = (screenWidth * 0.92) - sensRatioTextWidth - (screenWidth * 0.07);
+            }
+        } else {
+            // COB - hide the icon by moving it off screen
+            if (valueViewAiSRIcon != null) {
+                valueViewAiSRIcon.locX = -100; // Move off screen
+            }
         }
 
-        // Dynamically position loop time (valueTime) centered between IOB value and aiSR icon
-        if (valueViewTime != null && valueViewIOB != null && valueViewAiSRIcon != null) {
+        // Dynamically position loop time (valueTime) centered between IOB value and right side
+        if (valueViewTime != null && valueViewIOB != null) {
             // Calculate the right edge of IOB value with LARGE font
             var iobTextWidth = dc.getTextWidthInPixels(iobString, Graphics.FONT_SYSTEM_LARGE);
             var iobRightEdge = valueViewIOB.locX + (iobTextWidth / 2);
             
-            // The left edge of aiSR icon is already at valueViewAiSRIcon.locX
-            var aiSRIconLeftEdge = valueViewAiSRIcon.locX;
+            // For positioning, use either icon left edge or COB text left edge
+            var rightSideLeftEdge;
+            if (showingSensRatio && valueViewAiSRIcon != null) {
+                rightSideLeftEdge = valueViewAiSRIcon.locX;
+            } else {
+                // For COB, calculate where the text starts (right-aligned at 92%)
+                var cobTextWidth = dc.getTextWidthInPixels(rightSideString, Graphics.FONT_SYSTEM_LARGE);
+                rightSideLeftEdge = (screenWidth * 0.92) - cobTextWidth;
+            }
             
             // Center the time string between these two points
-            valueViewTime.locX = (iobRightEdge + aiSRIconLeftEdge) / 2;
+            valueViewTime.locX = (iobRightEdge + rightSideLeftEdge) / 2;
         }
 
         // Set background color and text values
@@ -152,7 +183,7 @@ class TrioDataFieldView extends WatchUi.DataField {
             }
             value.setColor(Graphics.COLOR_WHITE);
             valueTime.setColor(Graphics.COLOR_WHITE);
-            valueAiSR.setColor(Graphics.COLOR_WHITE);
+            valueAiSR.setColor(Graphics.COLOR_WHITE);  // White for both sensRatio and COB
             if (valueIOB != null) {
                 valueIOB.setColor(Graphics.COLOR_WHITE);
             }
@@ -163,7 +194,7 @@ class TrioDataFieldView extends WatchUi.DataField {
             }
             value.setColor(Graphics.COLOR_BLACK);
             valueTime.setColor(Graphics.COLOR_BLACK);
-            valueAiSR.setColor(Graphics.COLOR_BLACK);
+            valueAiSR.setColor(Graphics.COLOR_BLACK);  // Black for both sensRatio and COB
             if (valueIOB != null) {
                 valueIOB.setColor(Graphics.COLOR_BLACK);
             }
@@ -171,7 +202,7 @@ class TrioDataFieldView extends WatchUi.DataField {
         
         value.setText(bgString);
         valueTime.setText(evBGString);
-        valueAiSR.setText(aiSRString);
+        valueAiSR.setText(rightSideString);  // Sets either sensRatio or COB
         if (valueIOB != null) {
             valueIOB.setText(iobString);
         }
@@ -183,7 +214,7 @@ class TrioDataFieldView extends WatchUi.DataField {
         
         if (getBackgroundColor() == Graphics.COLOR_BLACK) {
             arrowView.setBitmap(getDirection(status));
-            if (aiSRIconView != null) {
+            if (aiSRIconView != null && showingSensRatio) {
                 aiSRIconView.setBitmap(WatchUi.loadResource(Rez.Drawables.aiSRDark));
             }
             if (iobIconView != null) {
@@ -192,7 +223,7 @@ class TrioDataFieldView extends WatchUi.DataField {
         }
         else {
             arrowView.setBitmap(getDirectionBlack(status));
-            if (aiSRIconView != null) {
+            if (aiSRIconView != null && showingSensRatio) {
                 aiSRIconView.setBitmap(WatchUi.loadResource(Rez.Drawables.aiSRLight));
             }
             if (iobIconView != null) {
@@ -233,24 +264,29 @@ class TrioDataFieldView extends WatchUi.DataField {
         }
     }
 
-    function getDeltaText(status as Dictionary) as String {
-        // var status = Application.Storage.getValue("status") as Dictionary;
+    function getCOBText(status as Dictionary) as String {
         if (status == null) {
             return "--";
         }
-        var delta = status["delta"] as String;
-        var deltaString = (delta == null) ? "--" : delta;
-        return deltaString;
+        var cob = status["cob"];
+        if (cob == null) {
+            return "--";
+        }
+        // Format COB with "g" suffix
+        if (cob instanceof Number) {
+            return cob.format("%3.1f") + "g";
+        } else {
+            return cob.toString() + "g";
+        }
     }
 
-    function getAiSRText(status as Dictionary) as String {
-        // var status = Application.Storage.getValue("status") as Dictionary;
+    function getSensRatioText(status as Dictionary) as String {
         if (status == null) {
             return "--";
         }
-        var aiSR = status["sensRatio"] as String;
-        var aiSRString = (aiSR == null) ? "--" : aiSR;
-        return aiSRString;
+        var sensRatio = status["sensRatio"] as String;
+        var sensRatioString = (sensRatio == null) ? "--" : sensRatio;
+        return sensRatioString;
     }
 
     function getIOBText(status as Dictionary) as String {
