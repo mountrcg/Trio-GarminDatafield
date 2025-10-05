@@ -68,7 +68,6 @@ class TrioDataFieldView extends WatchUi.DataField {
             bgString = (bg == null) ? "--" : bg as String;
             var min = getMinutes(status);
             loopColor = getLoopColor(min);
-            // Get eventualBGRaw from status
             var evBG = status["eventualBGRaw"] as String;
             evBGString = "(" + ((evBG == null) ? "--" : evBG) + ")" as String;
             
@@ -90,7 +89,7 @@ class TrioDataFieldView extends WatchUi.DataField {
             iobString = getIOBText(status) as String;
         }
 
-        // ONLY dynamic positioning: adjust BG and arrow based on glucose value width
+        // Dynamic positioning: adjust BG and arrow based on glucose value width
         var screenWidth = dc.getWidth();
         var centerX = screenWidth / 2;
         var largeFont = Graphics.FONT_SYSTEM_LARGE;
@@ -98,7 +97,6 @@ class TrioDataFieldView extends WatchUi.DataField {
         
         // Calculate actual glucose value width
         var currentValueWidth = dc.getTextWidthInPixels(bgString, largeFont);
-        var maxBGWidth = dc.getTextWidthInPixels("BG", xtinyFont);
         
         // Adjust BG and arrow positions dynamically
         var labelView = View.findDrawableById("label");
@@ -111,58 +109,98 @@ class TrioDataFieldView extends WatchUi.DataField {
             valueViewArrow.locX = centerX + (currentValueWidth / 2) + (screenWidth * 0.03);
         }
 
-         // Dynamic positioning for second line: IOB value, eventual BG, sensRatio/COB
+        // Dynamic positioning for second line: IOB value, eventual BG, sensRatio/COB
         var valueViewIOB = View.findDrawableById("valueIOB");
+        var valueViewIOBUnit = View.findDrawableById("valueIOBUnit");
         var valueViewEventualBG = View.findDrawableById("valueEventualBG");
         
-        // Define margins as parameters for consistency
-        var leftMargin = 0.08;  // 8% margin for left-aligned IOB text
-        var rightMargin = 0.08; // 8% margin for right-aligned text (92% = 100% - 8%)
+        // Define margins
+        var leftMargin = 0.08;
+        var rightMargin = 0.08;
 
-        // Position IOB value at the left edge with margin
-        if (valueViewIOB != null) {
-            valueViewIOB.locX = screenWidth * leftMargin; // Using parameter
+        // LEFT SIDE: IOB value left-aligned with "U" right after
+        if (valueViewIOB != null && valueViewIOBUnit != null) {
+            var iobTextWidth = dc.getTextWidthInPixels(iobString, largeFont);
+            var iobStartX = screenWidth * leftMargin;
+            
+            // IOB value left-aligned
+            valueViewIOB.locX = iobStartX;
             valueViewIOB.setJustification(Graphics.TEXT_JUSTIFY_LEFT);
+            
+            // "U" unit positioned right after IOB number
+            valueViewIOBUnit.locX = iobStartX + iobTextWidth + 2;
+            valueViewIOBUnit.setJustification(Graphics.TEXT_JUSTIFY_LEFT);
+            
+            // Adjust vertical position to align baselines
+            var largeHeight = dc.getFontHeight(largeFont);
+            var xtinyHeight = dc.getFontHeight(xtinyFont);
+            valueViewIOBUnit.locY = valueViewIOB.locY + (largeHeight - xtinyHeight) * 0.8;
         }
 
-        // Handle right side - either sensRatio with icon or COB without icon
+        // Handle right side - either sensRatio with icon or COB with "g" unit
         var valueViewAiSRIcon = View.findDrawableById("aiSRIcon");
         var valueViewAiSR = View.findDrawableById("valueAiSR");
+        var valueViewAiSRUnit = View.findDrawableById("valueAiSRUnit");
 
         if (showingSensRatio) {
-            // Position sensRatio icon to the left of sensRatio value 
-            if (valueViewAiSRIcon != null && valueViewAiSR != null) {
-                // Calculate sensRatio text width with LARGE font
-                var sensRatioTextWidth = dc.getTextWidthInPixels(rightSideString, Graphics.FONT_SYSTEM_LARGE);
-
-                // Position icon 7% left of the right-aligned text
-                valueViewAiSRIcon.locX = screenWidth * (1 - rightMargin) - sensRatioTextWidth - (screenWidth * 0.07);
+            // Position sensRatio with icon on the right
+            if (valueViewAiSRIcon != null && valueViewAiSR != null && valueViewAiSRUnit != null) {
+                var sensRatioTextWidth = dc.getTextWidthInPixels(rightSideString, largeFont);
+                var rightEdgeX = screenWidth * (1 - rightMargin);
+                
+                // sensRatio text right-aligned at right margin
+                valueViewAiSR.locX = rightEdgeX;
+                valueViewAiSR.setJustification(Graphics.TEXT_JUSTIFY_RIGHT);
+                
+                // Icon positioned to the left of the text
+                valueViewAiSRIcon.locX = rightEdgeX - sensRatioTextWidth - (screenWidth * 0.07);
+                
+                // Hide the unit label for sensRatio
+                valueViewAiSRUnit.locX = -100;
             }
         } else {
-            // COB - hide the icon by moving it off screen
-            if (valueViewAiSRIcon != null) {
-                valueViewAiSRIcon.locX = -100; // Move off screen
+            // RIGHT SIDE: COB value right-aligned with "g" right after
+            if (valueViewAiSRIcon != null && valueViewAiSR != null && valueViewAiSRUnit != null) {
+                // RIGHT SIDE: COB value with "g" at right margin (92%)
+                var cobTextWidth = dc.getTextWidthInPixels(rightSideString, largeFont);
+                var gUnitWidth = dc.getTextWidthInPixels("g", xtinyFont);
+                var rightEdgeX = screenWidth * (1 - rightMargin);
+
+                // Hide the icon
+                valueViewAiSRIcon.locX = -100;
+
+                // "g" unit positioned AT the right margin (92%)
+                valueViewAiSRUnit.locX = rightEdgeX - gUnitWidth;
+                valueViewAiSRUnit.setJustification(Graphics.TEXT_JUSTIFY_LEFT);
+
+                // COB value positioned to the LEFT of "g"
+                valueViewAiSR.locX = rightEdgeX - gUnitWidth - 2;
+                valueViewAiSR.setJustification(Graphics.TEXT_JUSTIFY_RIGHT);
+
+                // Adjust vertical position to align baselines
+                var largeHeight = dc.getFontHeight(largeFont);
+                var xtinyHeight = dc.getFontHeight(xtinyFont);
+                valueViewAiSRUnit.locY = valueViewAiSR.locY + (largeHeight - xtinyHeight) * 0.7;
             }
         }
 
-        // Dynamically position eventual BG centered between IOB and right side
-        if (valueViewEventualBG != null && valueViewIOB != null) {
-            // Calculate the right edge of IOB value
-            var iobTextWidth = dc.getTextWidthInPixels(iobString, Graphics.FONT_SYSTEM_LARGE);
-            var iobRightEdge = (screenWidth * leftMargin) + iobTextWidth; // Using parameter
+        // Dynamically position eventual BG centered between IOB and COB/sensRatio
+        if (valueViewEventualBG != null && valueViewIOB != null && valueViewIOBUnit != null) {
+            // Calculate the right edge of IOB+unit
+            var iobTextWidth = dc.getTextWidthInPixels(iobString, largeFont);
+            var iobUnitWidth = dc.getTextWidthInPixels("U", xtinyFont);
+            var iobRightEdge = (screenWidth * leftMargin) + iobTextWidth + 2 + iobUnitWidth;
             
             // Calculate left edge of right side element
             var rightSideLeftEdge;
             if (showingSensRatio && valueViewAiSRIcon != null) {
-                // Use sensRatio icon position
                 rightSideLeftEdge = valueViewAiSRIcon.locX;
             } else {
-                // For COB, calculate where the text starts
-                var cobTextWidth = dc.getTextWidthInPixels(rightSideString, Graphics.FONT_SYSTEM_LARGE);
+                var cobTextWidth = dc.getTextWidthInPixels(rightSideString, largeFont);
                 rightSideLeftEdge = screenWidth * (1 - rightMargin) - cobTextWidth;
             }
             
-            // Center the eventual BG between IOB and right side
+            // Center the eventual BG
             valueViewEventualBG.locX = (iobRightEdge + rightSideLeftEdge) / 2;
         }
 
@@ -173,76 +211,94 @@ class TrioDataFieldView extends WatchUi.DataField {
         var valueEventualBG = View.findDrawableById("valueEventualBG") as Text;
         var valueAiSR = View.findDrawableById("valueAiSR") as Text;
         var valueIOB = View.findDrawableById("valueIOB") as Text;
-        
-        // Cast labelView as Text for color setting
+        var valueIOBUnit = View.findDrawableById("valueIOBUnit") as Text;
+        var valueAiSRUnit = View.findDrawableById("valueAiSRUnit") as Text;
         var bgLabel = View.findDrawableById("label") as Text;
         
-        // Check if background is colored (yellow/red) due to loop status
+        // Check if background is colored (yellow/red)
         var backgroundColored = (loopColor == Graphics.COLOR_YELLOW || loopColor == Graphics.COLOR_RED);
         
         if (getBackgroundColor() == Graphics.COLOR_BLACK) {
             // Black background - use light/bright colors
             if (bgLabel != null) {
-                bgLabel.setColor(Graphics.COLOR_GREEN);  // Bright green matching aiSRDark
+                bgLabel.setColor(Graphics.COLOR_GREEN);
             }
             value.setColor(Graphics.COLOR_WHITE);
             valueEventualBG.setColor(Graphics.COLOR_WHITE);
             
-            // IOB color - blue unless background is colored
-            if (valueIOB != null) {
+            // IOB color
+            if (valueIOB != null && valueIOBUnit != null) {
                 if (backgroundColored) {
                     valueIOB.setColor(Graphics.COLOR_WHITE);
+                    valueIOBUnit.setColor(Graphics.COLOR_WHITE);
                 } else {
                     valueIOB.setColor(Graphics.COLOR_BLUE);
+                    valueIOBUnit.setColor(Graphics.COLOR_BLUE);
                 }
             }
             
-            // Right side (sensRatio or COB) color
+            // Right side color
             if (showingSensRatio) {
-                valueAiSR.setColor(Graphics.COLOR_WHITE);  // White for sensRatio
+                valueAiSR.setColor(Graphics.COLOR_WHITE);
             } else {
-                // COB - yellow unless background is colored
+                // COB
                 if (backgroundColored) {
                     valueAiSR.setColor(Graphics.COLOR_WHITE);
+                    valueAiSRUnit.setColor(Graphics.COLOR_WHITE);
                 } else {
                     valueAiSR.setColor(Graphics.COLOR_YELLOW);
+                    valueAiSRUnit.setColor(Graphics.COLOR_YELLOW);
                 }
             }
         } else {
             // White background - use dark colors
             if (bgLabel != null) {
-                bgLabel.setColor(Graphics.COLOR_DK_GREEN);  // Dark green matching aiSRLight (008000)
+                bgLabel.setColor(Graphics.COLOR_DK_GREEN);
             }
             value.setColor(Graphics.COLOR_BLACK);
             valueEventualBG.setColor(Graphics.COLOR_BLACK);
             
-            // IOB color - blue unless background is colored
-            if (valueIOB != null) {
+            // IOB color
+            if (valueIOB != null && valueIOBUnit != null) {
                 if (backgroundColored) {
                     valueIOB.setColor(Graphics.COLOR_BLACK);
+                    valueIOBUnit.setColor(Graphics.COLOR_BLACK);
                 } else {
                     valueIOB.setColor(Graphics.COLOR_DK_BLUE);
+                    valueIOBUnit.setColor(Graphics.COLOR_DK_BLUE);
                 }
             }
             
-            // Right side (sensRatio or COB) color
+            // Right side color
             if (showingSensRatio) {
-                valueAiSR.setColor(Graphics.COLOR_BLACK);  // Black for sensRatio
+                valueAiSR.setColor(Graphics.COLOR_BLACK);
             } else {
-                // COB - dark yellow/orange unless background is colored
+                // COB
                 if (backgroundColored) {
                     valueAiSR.setColor(Graphics.COLOR_BLACK);
+                    valueAiSRUnit.setColor(Graphics.COLOR_BLACK);
                 } else {
-                    valueAiSR.setColor(Graphics.COLOR_ORANGE);  // Orange (dark yellow) for visibility on white
+                    valueAiSR.setColor(Graphics.COLOR_ORANGE);
+                    valueAiSRUnit.setColor(Graphics.COLOR_ORANGE);
                 }
             }
         }
         
         value.setText(bgString);
         valueEventualBG.setText(evBGString);
-        valueAiSR.setText(rightSideString);  // Sets either sensRatio or COB
+        valueAiSR.setText(rightSideString);
         if (valueIOB != null) {
             valueIOB.setText(iobString);
+        }
+        if (valueIOBUnit != null) {
+            valueIOBUnit.setText("U");
+        }
+        if (valueAiSRUnit != null) {
+            if (showingSensRatio) {
+                valueAiSRUnit.setText("");  // No unit for sensRatio
+            } else {
+                valueAiSRUnit.setText("g");  // Show "g" for COB
+            }
         }
 
         // Set icon bitmaps
@@ -254,8 +310,7 @@ class TrioDataFieldView extends WatchUi.DataField {
             if (aiSRIconView != null && showingSensRatio) {
                 aiSRIconView.setBitmap(WatchUi.loadResource(Rez.Drawables.aiSRDark));
             }
-        }
-        else {
+        } else {
             arrowView.setBitmap(getDirectionBlack(status));
             if (aiSRIconView != null && showingSensRatio) {
                 aiSRIconView.setBitmap(WatchUi.loadResource(Rez.Drawables.aiSRLight));
@@ -263,6 +318,37 @@ class TrioDataFieldView extends WatchUi.DataField {
         }
         
         View.onUpdate(dc);
+    }
+
+    // Keep these functions returning just numbers (no units)
+    function getCOBText(status as Dictionary) as String {
+        if (status == null) {
+            return "--";
+        }
+        var cob = status["cob"];
+        if (cob == null) {
+            return "--";
+        }
+        if (cob instanceof Number) {
+            return cob.format("%3.1f");
+        } else {
+            return cob.toString();
+        }
+    }
+
+    function getIOBText(status as Dictionary) as String {
+        if (status == null) {
+            return "--";
+        }
+        var iob = status["iob"];
+        if (iob == null) {
+            return "--";
+        }
+        if (iob instanceof Number) {
+            return iob.format("%2.1f");
+        } else {
+            return iob.toString();
+        }
     }
 
     function getMinutes(status) as Number {
@@ -295,22 +381,6 @@ class TrioDataFieldView extends WatchUi.DataField {
         }
     }
 
-    function getCOBText(status as Dictionary) as String {
-        if (status == null) {
-            return "--";
-        }
-        var cob = status["cob"];
-        if (cob == null) {
-            return "--";
-        }
-        // Format COB with "g" suffix
-        if (cob instanceof Number) {
-            return cob.format("%3.1f") + "g";
-        } else {
-            return cob.toString() + "g";
-        }
-    }
-
     function getSensRatioText(status as Dictionary) as String {
         if (status == null) {
             return "--";
@@ -318,22 +388,6 @@ class TrioDataFieldView extends WatchUi.DataField {
         var sensRatio = status["sensRatio"] as String;
         var sensRatioString = (sensRatio == null) ? "--" : sensRatio;
         return sensRatioString;
-    }
-
-    function getIOBText(status as Dictionary) as String {
-        if (status == null) {
-            return "--";
-        }
-        var iob = status["iob"];
-        if (iob == null) {
-            return "--";
-        }
-        // Format IOB with "U" suffix like in watchface
-        if (iob instanceof Number) {
-            return iob.format("%2.1f") + "U";
-        } else {
-            return iob.toString() + "U";
-        }
     }
 
     function getDirectionBlack(status) as BitmapType {

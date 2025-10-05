@@ -23,6 +23,10 @@
         <label id="valueIOB" x="25%" y="56%" color="Graphics.COLOR_WHITE" 
                justification="Graphics.TEXT_JUSTIFY_CENTER" 
                font="Graphics.FONT_SYSTEM_LARGE" />
+        
+        <label id="valueIOBUnit" x="25%" y="56%" color="Graphics.COLOR_WHITE" 
+               justification="Graphics.TEXT_JUSTIFY_CENTER" 
+               font="Graphics.FONT_SYSTEM_XTINY" />
                
         <label id="valueEventualBG" x="center" y="61%" color="Graphics.COLOR_WHITE" 
                justification="Graphics.TEXT_JUSTIFY_CENTER" 
@@ -38,6 +42,10 @@
         <label id="valueAiSR" x="92%" y="56%" color="Graphics.COLOR_WHITE" 
                justification="Graphics.TEXT_JUSTIFY_RIGHT" 
                font="Graphics.FONT_SYSTEM_LARGE" />
+        
+        <label id="valueAiSRUnit" x="92%" y="56%" color="Graphics.COLOR_WHITE" 
+               justification="Graphics.TEXT_JUSTIFY_RIGHT" 
+               font="Graphics.FONT_SYSTEM_XTINY" />
     </layout>
 
     <!-- Bottom/Inverted layout - lines completely swapped -->
@@ -48,6 +56,10 @@
         <label id="valueIOB" x="25%" y="0%" color="Graphics.COLOR_WHITE" 
                justification="Graphics.TEXT_JUSTIFY_CENTER" 
                font="Graphics.FONT_SYSTEM_LARGE" />
+        
+        <label id="valueIOBUnit" x="25%" y="0%" color="Graphics.COLOR_WHITE" 
+               justification="Graphics.TEXT_JUSTIFY_CENTER" 
+               font="Graphics.FONT_SYSTEM_XTINY" />
                
         <label id="valueEventualBG" x="center" y="5%" color="Graphics.COLOR_WHITE" 
                justification="Graphics.TEXT_JUSTIFY_CENTER" 
@@ -63,6 +75,10 @@
         <label id="valueAiSR" x="92%" y="0%" color="Graphics.COLOR_WHITE" 
                justification="Graphics.TEXT_JUSTIFY_RIGHT" 
                font="Graphics.FONT_SYSTEM_LARGE" />
+        
+        <label id="valueAiSRUnit" x="92%" y="0%" color="Graphics.COLOR_WHITE" 
+               justification="Graphics.TEXT_JUSTIFY_RIGHT" 
+               font="Graphics.FONT_SYSTEM_XTINY" />
         
         <!-- SECOND LINE (bottom position): BG label, glucose value, arrow -->
         <label id="label" x="35%" y="60%" color="Graphics.COLOR_DK_GREEN" 
