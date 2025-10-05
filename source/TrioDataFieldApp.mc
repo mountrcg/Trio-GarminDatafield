@@ -50,7 +50,7 @@ class TrioDataFieldApp extends Application.AppBase {
             "cob" => "18",
             "eventualBGRaw" => "165",
             "trendRaw" => "FortyFiveDown",
-            "sensRatio" => "1.1"
+            //"sensRatio" => "1.1"
         } as Dictionary;
 
         var mmolsample = {
@@ -61,7 +61,7 @@ class TrioDataFieldApp extends Application.AppBase {
             "cob" => "70.2",
             "isf" => "3.7",
             "sensRatio" => "1.63",
-            "eventualBGRaw" => "9.9",
+            //"eventualBGRaw" => "9.9",
             "trendRaw" => "FortyFiveDown"
         } as Dictionary;
         

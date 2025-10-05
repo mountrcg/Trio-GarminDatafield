@@ -215,74 +215,94 @@ class TrioDataFieldView extends WatchUi.DataField {
         var valueAiSRUnit = View.findDrawableById("valueAiSRUnit") as Text;
         var bgLabel = View.findDrawableById("label") as Text;
         
-        // Check if background is colored (yellow/red)
-        var backgroundColored = (loopColor == Graphics.COLOR_YELLOW || loopColor == Graphics.COLOR_RED);
+// Check if background is RED or YELLOW
+    var backgroundIsRed = (loopColor == Graphics.COLOR_RED);
+    var backgroundIsYellow = (loopColor == Graphics.COLOR_YELLOW);
+    
+    if (backgroundIsRed) {
+        // RED background - force all text to WHITE for contrast (regardless of dark/light mode)
+        if (bgLabel != null) {
+            bgLabel.setColor(Graphics.COLOR_WHITE);
+        }
+        value.setColor(Graphics.COLOR_WHITE);
+        valueEventualBG.setColor(Graphics.COLOR_WHITE);
         
-        if (getBackgroundColor() == Graphics.COLOR_BLACK) {
-            // Black background - use light/bright colors
-            if (bgLabel != null) {
-                bgLabel.setColor(Graphics.COLOR_GREEN);
-            }
-            value.setColor(Graphics.COLOR_WHITE);
-            valueEventualBG.setColor(Graphics.COLOR_WHITE);
-            
-            // IOB color
-            if (valueIOB != null && valueIOBUnit != null) {
-                if (backgroundColored) {
-                    valueIOB.setColor(Graphics.COLOR_WHITE);
-                    valueIOBUnit.setColor(Graphics.COLOR_WHITE);
-                } else {
-                    valueIOB.setColor(Graphics.COLOR_BLUE);
-                    valueIOBUnit.setColor(Graphics.COLOR_BLUE);
-                }
-            }
-            
-            // Right side color
-            if (showingSensRatio) {
-                valueAiSR.setColor(Graphics.COLOR_WHITE);
-            } else {
-                // COB
-                if (backgroundColored) {
-                    valueAiSR.setColor(Graphics.COLOR_WHITE);
-                    valueAiSRUnit.setColor(Graphics.COLOR_WHITE);
-                } else {
-                    valueAiSR.setColor(Graphics.COLOR_YELLOW);
-                    valueAiSRUnit.setColor(Graphics.COLOR_YELLOW);
-                }
-            }
+        if (valueIOB != null && valueIOBUnit != null) {
+            valueIOB.setColor(Graphics.COLOR_WHITE);
+            valueIOBUnit.setColor(Graphics.COLOR_WHITE);
+        }
+        
+        if (showingSensRatio) {
+            valueAiSR.setColor(Graphics.COLOR_WHITE);
         } else {
-            // White background - use dark colors
-            if (bgLabel != null) {
-                bgLabel.setColor(Graphics.COLOR_DK_GREEN);
-            }
-            value.setColor(Graphics.COLOR_BLACK);
-            valueEventualBG.setColor(Graphics.COLOR_BLACK);
-            
-            // IOB color
-            if (valueIOB != null && valueIOBUnit != null) {
-                if (backgroundColored) {
-                    valueIOB.setColor(Graphics.COLOR_BLACK);
-                    valueIOBUnit.setColor(Graphics.COLOR_BLACK);
-                } else {
-                    valueIOB.setColor(Graphics.COLOR_DK_BLUE);
-                    valueIOBUnit.setColor(Graphics.COLOR_DK_BLUE);
-                }
-            }
-            
-            // Right side color
-            if (showingSensRatio) {
-                valueAiSR.setColor(Graphics.COLOR_BLACK);
+            valueAiSR.setColor(Graphics.COLOR_WHITE);
+            valueAiSRUnit.setColor(Graphics.COLOR_WHITE);
+        }
+    } else if (getBackgroundColor() == Graphics.COLOR_BLACK) {
+        // Black background - use light/bright colors
+        if (bgLabel != null) {
+            bgLabel.setColor(Graphics.COLOR_GREEN);
+        }
+        value.setColor(Graphics.COLOR_WHITE);
+        valueEventualBG.setColor(Graphics.COLOR_WHITE);
+        
+        // IOB color
+        if (valueIOB != null && valueIOBUnit != null) {
+            if (backgroundIsYellow) {
+                valueIOB.setColor(Graphics.COLOR_WHITE);
+                valueIOBUnit.setColor(Graphics.COLOR_WHITE);
             } else {
-                // COB
-                if (backgroundColored) {
-                    valueAiSR.setColor(Graphics.COLOR_BLACK);
-                    valueAiSRUnit.setColor(Graphics.COLOR_BLACK);
-                } else {
-                    valueAiSR.setColor(Graphics.COLOR_ORANGE);
-                    valueAiSRUnit.setColor(Graphics.COLOR_ORANGE);
-                }
+                valueIOB.setColor(Graphics.COLOR_BLUE);
+                valueIOBUnit.setColor(Graphics.COLOR_BLUE);
             }
         }
+        
+        // Right side color
+        if (showingSensRatio) {
+            valueAiSR.setColor(Graphics.COLOR_WHITE);
+        } else {
+            // COB
+            if (backgroundIsYellow) {
+                valueAiSR.setColor(Graphics.COLOR_WHITE);
+                valueAiSRUnit.setColor(Graphics.COLOR_WHITE);
+            } else {
+                valueAiSR.setColor(Graphics.COLOR_YELLOW);
+                valueAiSRUnit.setColor(Graphics.COLOR_YELLOW);
+            }
+        }
+    } else {
+        // White background - use dark colors
+        if (bgLabel != null) {
+            bgLabel.setColor(Graphics.COLOR_DK_GREEN);
+        }
+        value.setColor(Graphics.COLOR_BLACK);
+        valueEventualBG.setColor(Graphics.COLOR_BLACK);
+        
+        // IOB color
+        if (valueIOB != null && valueIOBUnit != null) {
+            if (backgroundIsYellow) {
+                valueIOB.setColor(Graphics.COLOR_BLACK);
+                valueIOBUnit.setColor(Graphics.COLOR_BLACK);
+            } else {
+                valueIOB.setColor(Graphics.COLOR_DK_BLUE);
+                valueIOBUnit.setColor(Graphics.COLOR_DK_BLUE);
+            }
+        }
+        
+        // Right side color
+        if (showingSensRatio) {
+            valueAiSR.setColor(Graphics.COLOR_BLACK);
+        } else {
+            // COB
+            if (backgroundIsYellow) {
+                valueAiSR.setColor(Graphics.COLOR_BLACK);
+                valueAiSRUnit.setColor(Graphics.COLOR_BLACK);
+            } else {
+                valueAiSR.setColor(Graphics.COLOR_ORANGE);
+                valueAiSRUnit.setColor(Graphics.COLOR_ORANGE);
+            }
+        }
+    }
         
         value.setText(bgString);
         valueEventualBG.setText(evBGString);
