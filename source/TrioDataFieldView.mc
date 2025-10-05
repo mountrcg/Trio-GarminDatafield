@@ -3,7 +3,7 @@
 // AUTHORS :
 //          Created by ivalkou - https://github.com/ivalkou
 //          Modify by Pierre Lagarde - https://github.com/avouspierre
-//          Added IOB support with blue drop icon (delta code preserved)
+//          IOB displayed as text with U suffix (icon removed)
 // COPYRIGHT : (c) 2023 ivalkou / Lagarde
 //
 
@@ -111,18 +111,18 @@ class TrioDataFieldView extends WatchUi.DataField {
             valueViewArrow.locX = centerX + (currentValueWidth / 2) + (screenWidth * 0.03);
         }
 
-        // Dynamic positioning for second line: IOB icon, IOB value, time, aiSR icon, aiSR value
-        var valueViewIOBIcon = View.findDrawableById("iobIcon");
+         // Dynamic positioning for second line: IOB value, eventual BG, sensRatio/COB
         var valueViewIOB = View.findDrawableById("valueIOB");
-        var valueViewTime = View.findDrawableById("valueTime");
+        var valueViewEventualBG = View.findDrawableById("valueEventualBG");
+        
+        // Define margins as parameters for consistency
+        var leftMargin = 0.08;  // 8% margin for left-aligned IOB text
+        var rightMargin = 0.08; // 8% margin for right-aligned text (92% = 100% - 8%)
 
-        // Position IOB value: half its width + 3% right of IOB icon
-        if (valueViewIOBIcon != null && valueViewIOB != null) {
-            // Calculate IOB text width with LARGE font
-            var iobTextWidth = dc.getTextWidthInPixels(iobString, Graphics.FONT_SYSTEM_LARGE);
-
-            // Position IOB value: icon position + half text width + 3% spacing
-            valueViewIOB.locX = valueViewIOBIcon.locX + (iobTextWidth / 2) + (screenWidth * 0.07);
+        // Position IOB value at the left edge with margin
+        if (valueViewIOB != null) {
+            valueViewIOB.locX = screenWidth * leftMargin; // Using parameter
+            valueViewIOB.setJustification(Graphics.TEXT_JUSTIFY_LEFT);
         }
 
         // Handle right side - either sensRatio with icon or COB without icon
@@ -130,13 +130,13 @@ class TrioDataFieldView extends WatchUi.DataField {
         var valueViewAiSR = View.findDrawableById("valueAiSR");
 
         if (showingSensRatio) {
-            // Position aiSR icon 0.07 left of aiSR value 
+            // Position sensRatio icon to the left of sensRatio value 
             if (valueViewAiSRIcon != null && valueViewAiSR != null) {
                 // Calculate sensRatio text width with LARGE font
                 var sensRatioTextWidth = dc.getTextWidthInPixels(rightSideString, Graphics.FONT_SYSTEM_LARGE);
 
-                // Position sensRatio icon relative to the text's left edge (accounting for right justification)
-                valueViewAiSRIcon.locX = (screenWidth * 0.92) - sensRatioTextWidth - (screenWidth * 0.07);
+                // Position icon 7% left of the right-aligned text
+                valueViewAiSRIcon.locX = screenWidth * (1 - rightMargin) - sensRatioTextWidth - (screenWidth * 0.07);
             }
         } else {
             // COB - hide the icon by moving it off screen
@@ -145,31 +145,32 @@ class TrioDataFieldView extends WatchUi.DataField {
             }
         }
 
-        // Dynamically position loop time (valueTime) centered between IOB value and right side
-        if (valueViewTime != null && valueViewIOB != null) {
-            // Calculate the right edge of IOB value with LARGE font
+        // Dynamically position eventual BG centered between IOB and right side
+        if (valueViewEventualBG != null && valueViewIOB != null) {
+            // Calculate the right edge of IOB value
             var iobTextWidth = dc.getTextWidthInPixels(iobString, Graphics.FONT_SYSTEM_LARGE);
-            var iobRightEdge = valueViewIOB.locX + (iobTextWidth / 2);
+            var iobRightEdge = (screenWidth * leftMargin) + iobTextWidth; // Using parameter
             
-            // For positioning, use either icon left edge or COB text left edge
+            // Calculate left edge of right side element
             var rightSideLeftEdge;
             if (showingSensRatio && valueViewAiSRIcon != null) {
+                // Use sensRatio icon position
                 rightSideLeftEdge = valueViewAiSRIcon.locX;
             } else {
-                // For COB, calculate where the text starts (right-aligned at 92%)
+                // For COB, calculate where the text starts
                 var cobTextWidth = dc.getTextWidthInPixels(rightSideString, Graphics.FONT_SYSTEM_LARGE);
-                rightSideLeftEdge = (screenWidth * 0.92) - cobTextWidth;
+                rightSideLeftEdge = screenWidth * (1 - rightMargin) - cobTextWidth;
             }
             
-            // Center the time string between these two points
-            valueViewTime.locX = (iobRightEdge + rightSideLeftEdge) / 2;
+            // Center the eventual BG between IOB and right side
+            valueViewEventualBG.locX = (iobRightEdge + rightSideLeftEdge) / 2;
         }
 
         // Set background color and text values
         (View.findDrawableById("Background") as Text).setColor(loopColor);
         
         var value = View.findDrawableById("value") as Text;
-        var valueTime = View.findDrawableById("valueTime") as Text;
+        var valueEventualBG = View.findDrawableById("valueEventualBG") as Text;
         var valueAiSR = View.findDrawableById("valueAiSR") as Text;
         var valueIOB = View.findDrawableById("valueIOB") as Text;
         
@@ -182,7 +183,7 @@ class TrioDataFieldView extends WatchUi.DataField {
                 bgLabel.setColor(Graphics.COLOR_GREEN);  // Bright green matching aiSRDark
             }
             value.setColor(Graphics.COLOR_WHITE);
-            valueTime.setColor(Graphics.COLOR_WHITE);
+            valueEventualBG.setColor(Graphics.COLOR_WHITE);
             valueAiSR.setColor(Graphics.COLOR_WHITE);  // White for both sensRatio and COB
             if (valueIOB != null) {
                 valueIOB.setColor(Graphics.COLOR_WHITE);
@@ -193,7 +194,7 @@ class TrioDataFieldView extends WatchUi.DataField {
                 bgLabel.setColor(Graphics.COLOR_DK_GREEN);  // Dark green matching aiSRLight (008000)
             }
             value.setColor(Graphics.COLOR_BLACK);
-            valueTime.setColor(Graphics.COLOR_BLACK);
+            valueEventualBG.setColor(Graphics.COLOR_BLACK);
             valueAiSR.setColor(Graphics.COLOR_BLACK);  // Black for both sensRatio and COB
             if (valueIOB != null) {
                 valueIOB.setColor(Graphics.COLOR_BLACK);
@@ -201,7 +202,7 @@ class TrioDataFieldView extends WatchUi.DataField {
         }
         
         value.setText(bgString);
-        valueTime.setText(evBGString);
+        valueEventualBG.setText(evBGString);
         valueAiSR.setText(rightSideString);  // Sets either sensRatio or COB
         if (valueIOB != null) {
             valueIOB.setText(iobString);
@@ -210,24 +211,17 @@ class TrioDataFieldView extends WatchUi.DataField {
         // Set icon bitmaps
         var arrowView = View.findDrawableById("arrow") as Bitmap;
         var aiSRIconView = View.findDrawableById("aiSRIcon") as Bitmap;
-        var iobIconView = View.findDrawableById("iobIcon") as Bitmap;
         
         if (getBackgroundColor() == Graphics.COLOR_BLACK) {
             arrowView.setBitmap(getDirection(status));
             if (aiSRIconView != null && showingSensRatio) {
                 aiSRIconView.setBitmap(WatchUi.loadResource(Rez.Drawables.aiSRDark));
             }
-            if (iobIconView != null) {
-                iobIconView.setBitmap(WatchUi.loadResource(Rez.Drawables.iobLight));
-            }
         }
         else {
             arrowView.setBitmap(getDirectionBlack(status));
             if (aiSRIconView != null && showingSensRatio) {
                 aiSRIconView.setBitmap(WatchUi.loadResource(Rez.Drawables.aiSRLight));
-            }
-            if (iobIconView != null) {
-                iobIconView.setBitmap(WatchUi.loadResource(Rez.Drawables.iobDark));
             }
         }
         
@@ -290,13 +284,19 @@ class TrioDataFieldView extends WatchUi.DataField {
     }
 
     function getIOBText(status as Dictionary) as String {
-        // var status = Application.Storage.getValue("status") as Dictionary;
         if (status == null) {
             return "--";
         }
-        var iob = status["iob"] as String;
-        var iobString = (iob == null) ? "--" : iob;
-        return iobString;
+        var iob = status["iob"];
+        if (iob == null) {
+            return "--";
+        }
+        // Format IOB with "U" suffix like in watchface
+        if (iob instanceof Number) {
+            return iob.format("%2.1f") + "U";
+        } else {
+            return iob.toString() + "U";
+        }
     }
 
     function getDirectionBlack(status) as BitmapType {

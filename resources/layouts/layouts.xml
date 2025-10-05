@@ -3,7 +3,7 @@
     <layout id="MainLayout">
         <drawable class="Background" />
         
-        <!-- FIRST LINE: BG, glucose value, arrow -->
+        <!-- FIRST LINE: BG label, glucose value, arrow -->
         <label id="label" x="30%" y="25%" color="Graphics.COLOR_DK_GREEN" 
                justification="Graphics.TEXT_JUSTIFY_CENTER" 
                font="Graphics.FONT_SYSTEM_XTINY" />
@@ -19,30 +19,23 @@
             </palette> 
         </bitmap>
         
-        <!-- SECOND LINE: IOB, time, aiSR - moved up by 2% -->
-        <bitmap id="iobIcon" x="8%" y="70%" filename="../drawables/drop.svg" 
-                scaleX="6%" scaleY="6%" scaleRelativeTo="screen">
-            <palette>
-                <color>00B3D2</color>
-            </palette>
-        </bitmap>
-        
-        <label id="valueIOB" x="25%" y="58%" color="Graphics.COLOR_WHITE" 
+        <!-- SECOND LINE: IOB, eventual BG, sensRatio/COB -->        
+        <label id="valueIOB" x="25%" y="56%" color="Graphics.COLOR_WHITE" 
                justification="Graphics.TEXT_JUSTIFY_CENTER" 
                font="Graphics.FONT_SYSTEM_LARGE" />
                
-        <label id="valueTime" x="center" y="63%" color="Graphics.COLOR_WHITE" 
+        <label id="valueEventualBG" x="center" y="61%" color="Graphics.COLOR_WHITE" 
                justification="Graphics.TEXT_JUSTIFY_CENTER" 
                font="Graphics.FONT_SYSTEM_SMALL" />
         
-        <bitmap id="aiSRIcon" x="64%" y="72%" filename="../drawables/UpDown.svg" 
+        <bitmap id="aiSRIcon" x="64%" y="70%" filename="../drawables/UpDown.svg" 
                 scaleX="6%" scaleY="6%" scaleRelativeTo="screen">
             <palette>
                 <color>00FF00</color>
             </palette> 
         </bitmap>
                
-        <label id="valueAiSR" x="92%" y="58%" color="Graphics.COLOR_WHITE" 
+        <label id="valueAiSR" x="92%" y="56%" color="Graphics.COLOR_WHITE" 
                justification="Graphics.TEXT_JUSTIFY_RIGHT" 
                font="Graphics.FONT_SYSTEM_LARGE" />
     </layout>
@@ -51,19 +44,12 @@
     <layout id="BottomLayout">
         <drawable class="Background" />
         
-        <!-- FIRST LINE (top position): IOB, time, aiSR - also adjusted -->
-        <bitmap id="iobIcon" x="10%" y="12%" filename="../drawables/drop.svg" 
-                scaleX="6%" scaleY="6%" scaleRelativeTo="screen">
-            <palette>
-                <color>00B3D2</color>
-            </palette>
-        </bitmap>
-        
+        <!-- FIRST LINE (top position): IOB, eventual BG, sensRatio/COB -->
         <label id="valueIOB" x="25%" y="0%" color="Graphics.COLOR_WHITE" 
                justification="Graphics.TEXT_JUSTIFY_CENTER" 
                font="Graphics.FONT_SYSTEM_LARGE" />
                
-        <label id="valueTime" x="center" y="5%" color="Graphics.COLOR_WHITE" 
+        <label id="valueEventualBG" x="center" y="5%" color="Graphics.COLOR_WHITE" 
                justification="Graphics.TEXT_JUSTIFY_CENTER" 
                font="Graphics.FONT_SYSTEM_SMALL" />
         
@@ -78,7 +64,7 @@
                justification="Graphics.TEXT_JUSTIFY_RIGHT" 
                font="Graphics.FONT_SYSTEM_LARGE" />
         
-        <!-- SECOND LINE (bottom position): BG, glucose value, arrow -->
+        <!-- SECOND LINE (bottom position): BG label, glucose value, arrow -->
         <label id="label" x="35%" y="60%" color="Graphics.COLOR_DK_GREEN" 
                justification="Graphics.TEXT_JUSTIFY_CENTER" 
                font="Graphics.FONT_SYSTEM_XTINY" />
