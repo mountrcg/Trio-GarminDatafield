@@ -194,10 +194,13 @@ class TrioDataFieldView extends WatchUi.DataField {
             // Calculate left edge of right side element
             var rightSideLeftEdge;
             if (showingSensRatio && valueViewAiSRIcon != null) {
+                // For sensRatio: use icon position as left edge
                 rightSideLeftEdge = valueViewAiSRIcon.locX;
             } else {
+                // For COB: calculate where COB value starts (to the left of "g")
                 var cobTextWidth = dc.getTextWidthInPixels(rightSideString, largeFont);
-                rightSideLeftEdge = screenWidth * (1 - rightMargin) - cobTextWidth;
+                var gUnitWidth = dc.getTextWidthInPixels("g", xtinyFont);
+                rightSideLeftEdge = (screenWidth * (1 - rightMargin)) - gUnitWidth - 2 - cobTextWidth;
             }
             
             // Center the eventual BG
