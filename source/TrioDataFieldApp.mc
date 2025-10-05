@@ -66,7 +66,7 @@ class TrioDataFieldApp extends Application.AppBase {
         } as Dictionary;
         
         //uncomment for testing
-        Application.Storage.setValue("status", sample);
+        //Application.Storage.setValue("status", sample);
     }
 
     function onBackgroundData(data) {

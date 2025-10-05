@@ -28,25 +28,41 @@ class TrioDataFieldView extends WatchUi.DataField {
     function compute(info) {
     }
 
-    function onLayout(dc as Dc) as Void {
-        var obscurityFlags = DataField.getObscurityFlags();
-        
-        // Check if top is obscured (meaning we're in bottom position)
-        // But we need to REVERSE the layout assignment
-        // When OBSCURE_TOP is set, we're in bottom position but need MainLayout (short first line)
-        // When OBSCURE_TOP is not set, we're in top position but need BottomLayout (short second line)
-        if ((obscurityFlags & OBSCURE_TOP) != 0) {
-            // Bottom position - use MainLayout (first line is shorter)
-            isBottomPosition = true;
-            View.setLayout(Rez.Layouts.MainLayout(dc));
-        } else {
-            // Top position - use BottomLayout (second line is shorter)
-            isBottomPosition = false;
-            View.setLayout(Rez.Layouts.BottomLayout(dc));
-        }
-
-        (View.findDrawableById("label") as Text).setText(Rez.Strings.label);
+function onLayout(dc as Dc) as Void {
+    var obscurityFlags = DataField.getObscurityFlags();
+    
+    if ((obscurityFlags & OBSCURE_TOP) != 0) {
+        isBottomPosition = true;
+        View.setLayout(Rez.Layouts.MainLayout(dc));
+    } else {
+        isBottomPosition = false;
+        View.setLayout(Rez.Layouts.BottomLayout(dc));
     }
+
+    (View.findDrawableById("label") as Text).setText(Rez.Strings.label);
+    
+    // Adjust BG position for small screens (Fenix 5 and similar)
+    var screenHeight = dc.getHeight();
+    if (screenHeight <= 260) {  // Fenix 5/5S have 218px height or less
+        var valueView = View.findDrawableById("value") as Text;
+        if (valueView != null) {
+            if (isBottomPosition) {
+                valueView.locY = dc.getHeight() * 0.10;  // 5% for top line
+            } else {
+                valueView.locY = dc.getHeight() * 0.50;  // 40% for bottom line
+            }
+        }
+        
+        var labelView = View.findDrawableById("label") as Text;
+        if (labelView != null) {
+            if (isBottomPosition) {
+                labelView.locY = dc.getHeight() * 0.20;  // 20% for top line
+            } else {
+                labelView.locY = dc.getHeight() * 0.60;  // 55% for bottom line
+            }
+        }
+    }
+}
 
     function onUpdate(dc as Dc) as Void {
         var bgString;
