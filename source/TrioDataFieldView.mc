@@ -177,6 +177,9 @@ class TrioDataFieldView extends WatchUi.DataField {
         // Cast labelView as Text for color setting
         var bgLabel = View.findDrawableById("label") as Text;
         
+        // Check if background is colored (yellow/red) due to loop status
+        var backgroundColored = (loopColor == Graphics.COLOR_YELLOW || loopColor == Graphics.COLOR_RED);
+        
         if (getBackgroundColor() == Graphics.COLOR_BLACK) {
             // Black background - use light/bright colors
             if (bgLabel != null) {
@@ -184,9 +187,26 @@ class TrioDataFieldView extends WatchUi.DataField {
             }
             value.setColor(Graphics.COLOR_WHITE);
             valueEventualBG.setColor(Graphics.COLOR_WHITE);
-            valueAiSR.setColor(Graphics.COLOR_WHITE);  // White for both sensRatio and COB
+            
+            // IOB color - blue unless background is colored
             if (valueIOB != null) {
-                valueIOB.setColor(Graphics.COLOR_WHITE);
+                if (backgroundColored) {
+                    valueIOB.setColor(Graphics.COLOR_WHITE);
+                } else {
+                    valueIOB.setColor(Graphics.COLOR_BLUE);
+                }
+            }
+            
+            // Right side (sensRatio or COB) color
+            if (showingSensRatio) {
+                valueAiSR.setColor(Graphics.COLOR_WHITE);  // White for sensRatio
+            } else {
+                // COB - yellow unless background is colored
+                if (backgroundColored) {
+                    valueAiSR.setColor(Graphics.COLOR_WHITE);
+                } else {
+                    valueAiSR.setColor(Graphics.COLOR_YELLOW);
+                }
             }
         } else {
             // White background - use dark colors
@@ -195,9 +215,26 @@ class TrioDataFieldView extends WatchUi.DataField {
             }
             value.setColor(Graphics.COLOR_BLACK);
             valueEventualBG.setColor(Graphics.COLOR_BLACK);
-            valueAiSR.setColor(Graphics.COLOR_BLACK);  // Black for both sensRatio and COB
+            
+            // IOB color - blue unless background is colored
             if (valueIOB != null) {
-                valueIOB.setColor(Graphics.COLOR_BLACK);
+                if (backgroundColored) {
+                    valueIOB.setColor(Graphics.COLOR_BLACK);
+                } else {
+                    valueIOB.setColor(Graphics.COLOR_DK_BLUE);
+                }
+            }
+            
+            // Right side (sensRatio or COB) color
+            if (showingSensRatio) {
+                valueAiSR.setColor(Graphics.COLOR_BLACK);  // Black for sensRatio
+            } else {
+                // COB - dark yellow/orange unless background is colored
+                if (backgroundColored) {
+                    valueAiSR.setColor(Graphics.COLOR_BLACK);
+                } else {
+                    valueAiSR.setColor(Graphics.COLOR_ORANGE);  // Orange (dark yellow) for visibility on white
+                }
             }
         }
         
