@@ -27,7 +27,6 @@ class TrioDataFieldApp extends Application.AppBase {
     function onStart(state as Dictionary?) as Void {
         //register for temporal events if they are supported
         if(Toybox.System has :ServiceDelegate) {
-            // canDoBG=true;
             Background.registerForTemporalEvent(new Time.Duration(5 * 60));
             if (Background has :registerForPhoneAppMessageEvent) {
                 Background.registerForPhoneAppMessageEvent();
@@ -39,34 +38,26 @@ class TrioDataFieldApp extends Application.AppBase {
             System.println("****background not available on this device****");
         }
         
-        // This will always give you a timestamp from exactly 4 minutes ago
-        var currentTime = Time.now().value();
-        var minutesAgo = currentTime - 60; // 240 seconds = 4 minutes
-        var sample = {
-            "glucose" => "80",
-            "lastLoopDateInterval" => minutesAgo, // Always 4 minutes ago
-            "delta" => "-20",
-            "iob" => "-1.1",  // This is what we'll display instead of delta
-            "cob" => "18",
-            "eventualBGRaw" => "165",
-            "trendRaw" => "FortyFiveDown",
-            //"sensRatio" => "1.1"
-        } as Dictionary;
-
-        var mmolsample = {
-            "glucose" => "10.9",
-            "lastLoopDateInterval" => minutesAgo, // Always 4 minutes ago
-            "delta" => "-2.3",
-            "iob" => "2.9",
-            "cob" => "70.2",
-            "isf" => "3.7",
-            "sensRatio" => "1.63",
-            //"eventualBGRaw" => "9.9",
-            "trendRaw" => "FortyFiveDown"
+        // Create test data with new structure (timestamp in milliseconds)
+        var now = Time.now().value();
+        var fourMinutesAgo = now - (4 * 60);
+        var lastLoopDateMs = fourMinutesAgo.toLong() * 1000;
+        
+        var sampleData = {
+            "date" => lastLoopDateMs,
+            "sgv" => 202,
+            "delta" => 7,
+            "direction" => "DoubleUp",
+            "units_hint" => "mmol",
+            "iob" => 0.1,
+            "cob" => 20.0,
+            "eventualBG" => 235,
+            "isf" => 100,
+            //"sensRatio" => 0.5
         } as Dictionary;
         
         //uncomment for testing
-        //Application.Storage.setValue("status", sample);
+        Application.Storage.setValue("status", sampleData);
     }
 
     function onBackgroundData(data) {
@@ -86,7 +77,6 @@ class TrioDataFieldApp extends Application.AppBase {
         WatchUi.requestUpdate();
     }
 
-    // onStop() is called when your application is exiting
     function onStop(state as Dictionary?) as Void {
         if(!inBackground) {
             System.println("stop temp event");
@@ -94,7 +84,6 @@ class TrioDataFieldApp extends Application.AppBase {
         }
     }
 
-    //! Return the initial view of your application here
     function getInitialView() as [Views] or [Views, InputDelegates] {
         return [ new TrioDataFieldView() ] as [Views];
     }
