@@ -141,12 +141,12 @@ function onLayout(dc as Dc) as Void {
             
             // IOB value left-aligned
             valueViewIOB.locX = iobStartX;
-            valueViewIOB.setJustification(Graphics.TEXT_JUSTIFY_LEFT);
+            (valueViewIOB as Text).setJustification(Graphics.TEXT_JUSTIFY_LEFT);
             
             // "U" unit positioned right after IOB number
             valueViewIOBUnit.locX = iobStartX + iobTextWidth + 2;
-            valueViewIOBUnit.setJustification(Graphics.TEXT_JUSTIFY_LEFT);
-            
+            (valueViewIOBUnit as Text).setJustification(Graphics.TEXT_JUSTIFY_LEFT);
+
             // Adjust vertical position to align baselines
             var largeHeight = dc.getFontHeight(largeFont);
             var xtinyHeight = dc.getFontHeight(xtinyFont);
@@ -166,7 +166,7 @@ function onLayout(dc as Dc) as Void {
                 
                 // sensRatio text right-aligned at right margin
                 valueViewAiSR.locX = rightEdgeX;
-                valueViewAiSR.setJustification(Graphics.TEXT_JUSTIFY_RIGHT);
+                (valueViewAiSR as Text).setJustification(Graphics.TEXT_JUSTIFY_RIGHT);
                 
                 // Icon positioned to the left of the text
                 valueViewAiSRIcon.locX = rightEdgeX - sensRatioTextWidth - (screenWidth * 0.07);
@@ -187,11 +187,11 @@ function onLayout(dc as Dc) as Void {
 
                 // "g" unit positioned AT the right margin (92%)
                 valueViewAiSRUnit.locX = rightEdgeX - gUnitWidth;
-                valueViewAiSRUnit.setJustification(Graphics.TEXT_JUSTIFY_LEFT);
+                (valueViewAiSRUnit as Text).setJustification(Graphics.TEXT_JUSTIFY_LEFT);
 
                 // COB value positioned to the LEFT of "g"
                 valueViewAiSR.locX = rightEdgeX - gUnitWidth - 2;
-                valueViewAiSR.setJustification(Graphics.TEXT_JUSTIFY_RIGHT);
+                (valueViewAiSR as Text).setJustification(Graphics.TEXT_JUSTIFY_RIGHT);
 
                 // Adjust vertical position to align baselines
                 var largeHeight = dc.getFontHeight(largeFont);
